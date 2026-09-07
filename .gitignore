@@ -1,0 +1,42 @@
+# Build output
+dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+fyne-cross/
+
+# Go
+*.test
+*.out
+vendor/
+go.work
+go.work.sum
+
+# Keep the Windows resource files (icon + manifest) that go build picks up.
+!cmd/audioprep/*.syso
+
+# Local scratch
+*.log
+*.tmp
+*.part
+sample*.mp4
+/tmp/
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Web (see web/.gitignore for the rest)
+web/node_modules/
+web/dist/
+web/public/ffmpeg/
+
+# Never commit credentials
+creds.txt
+.env
+.env.*
