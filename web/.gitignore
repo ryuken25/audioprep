@@ -1,0 +1,6 @@
+node_modules
+dist
+# The ffmpeg core is copied here from node_modules at install/build time.
+public/ffmpeg/
+.DS_Store
+*.log
