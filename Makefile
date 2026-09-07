@@ -12,7 +12,7 @@
 
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 # Plain numeric version for the Windows resource block (git describe output is not valid there).
-WINRES_VERSION ?= 0.3.0
+WINRES_VERSION ?= 0.4.0
 LDFLAGS  = -H windowsgui -s -w -X main.version=$(VERSION)
 BIN      = dist/audioprep-windows-amd64.exe
 

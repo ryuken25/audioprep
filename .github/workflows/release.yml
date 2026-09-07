@@ -88,6 +88,8 @@ jobs:
              %APPDATA%\audioprep\bin. Say yes once; later launches skip it.
              (Or put your own ffmpeg.exe + ffprobe.exe next to the .exe.)
           3. Drop a video, pick "X (audio-first)", click Process.
+             Dropping an audio file works too: you get an MP4 with a still
+             picture (or a black frame), because X does not accept bare audio.
 
           Windows SmartScreen may warn because the .exe is not code-signed.
           Click "More info" -> "Run anyway".
