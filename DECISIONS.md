@@ -248,6 +248,93 @@ holds real ffprobe JSON, a real loudnorm pass-1 stderr and a real ebur128
 summary from ffmpeg 7.1, so the parsers are tested against the actual
 format, quirks included.
 
+## The design pass (v0.4)
+
+The owner ran the brief in `design/prompt.md` through Claude Design and asked
+for the result applied in full: "semua tampilan pake ini vrcstyle dengan bgnya
+yang vrc style". The design project is imported under `design/` and
+`design/from-claude-design/`; `design/tokens.css` is the authority for colour.
+
+**VRChat skin is the default, not an option.** `<html data-skin="vrchat">`
+switches every surface token to a translucent value and the panels get
+`backdrop-filter: blur(22px) saturate(1.4)`. Behind them, a
+`position: fixed; inset: 0` picture layer holds one of the owner's own images
+(the birthday fan art by default, plus the chalkboard and shrine VRChat
+captures) under a two-stop gradient. Fixed, not absolute, so opening Advanced
+or a long result never moves or rescales it. Under 560 px it becomes a 760 px
+band at the top with a mask fade, because a fixed cover layer on a phone
+fights the address bar. `data-skin="studio"` gives the flat look back.
+
+**Mauve is the structure, gold is the one action.** The v0.3 palette used gold
+for everything accented, which made the selected preset, the focus ring and
+the Process button compete. Now selection, focus, links, the drop-zone ring
+and the "Output" column are the avatar's dusty mauve, and gold appears on
+exactly three things: Process, Download and the progress fill.
+
+**Fonts are self-hosted.** Sora for headings and JetBrains Mono for the log,
+units and file paths, both OFL, latin + latin-ext woff2 only, 252 KB total in
+`web/public/fonts`. Japanese falls through to the system Noto Sans JP rather
+than shipping a CJK webfont, which would be megabytes. No Google Fonts request
+at runtime; the site still makes zero third-party calls.
+
+**Three languages, one table.** EN / ID / JP live in `web/src/i18n.js`, copied
+verbatim from the design's copy pass in the owner's own voice, with the
+formatter functions (eta, duration, summary, warnings) per language rather
+than English sentences with substitutions. Errors stay literal in all three.
+The language pill cycles and persists as `kxc.lang`, defaulting from
+`navigator.language`. Preset descriptions moved out of `presets.js` into the
+table; the numbers stayed in `presets.js`, because they are a product
+decision and not copy.
+
+## Audio in, MP4 out (cover mode)
+
+**An audio file no longer forces the M4A preset.** It keeps the chosen video
+preset and a Picture card appears: drop a JPG or PNG and it becomes the still
+frame, or leave it empty and the video is a black frame at the preset's box.
+This is what an audio-first tool should have done from the start, since X and
+TikTok will not take a bare m4a.
+
+`Request.IsCoverMode()` is true when the input has no video stream and the
+preset is not audio-only. `CoverBox()` returns the output frame: the preset's
+box, flipped to match the picture's orientation (a square picture keeps the
+preset's own). The output is *always* exactly that box; the picture is scaled
+down to fit and padded with black
+(`scale=W:H:force_original_aspect_ratio=decrease,pad=W:H:(ow-iw)/2:(oh-ih)/2`).
+
+That last choice went the other way first. Fitting the output to the picture
+avoids black bars and wastes no pixels, but it makes the output size depend on
+whatever art the user dropped. The design's own preview tile letterboxes on
+black (`center/contain` on a black tile), so the encode matches the tile: one
+predictable frame per preset. A picture smaller than the box is not enlarged;
+`force_original_aspect_ratio=decrease` only shrinks, so it just sits in the
+middle with wider bars.
+
+`preset.Vertical` is new, marking TikTok as the one portrait-intent preset.
+The box in the table is written landscape and normally flipped to match the
+input video; with no input video and no picture, nothing else could decide.
+
+**WebP is accepted by ffmpeg but not by the desktop picture picker.** Go's
+standard library cannot decode it, so the preview tile would be blank. The web
+version takes it, since the browser decodes it natively.
+
+## Desktop, same design
+
+**The Fyne theme is now the full colour sheet**, not a one-colour override.
+`forcedTheme` answers every `ColorName` the design lists, plus sizes (padding
+6, input radius 8, heading 22). A `glass` flag switches the surfaces to alpha
+values so the backdrop shows through.
+
+**Fyne cannot blur.** The VRChat skin is a `container.NewStack` of the picture
+(`assets/world.jpg`, pre-cropped to the window aspect at 2x), a flat veil
+rectangle and the content. Translucent surfaces over an already-soft picture
+read as frosted glass; a real blur would need a custom renderer for a small
+gain. The gradient in the mockup is one flat overlay here, as the design note
+allows.
+
+**The window title block is the avatar plus the product name**, matching the
+web header, and the status bar gained a leading dot in success / warning /
+error, mirroring the web footer.
+
 ## Web version
 
 **ffmpeg.wasm single-threaded core.** The multithreaded core needs

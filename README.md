@@ -53,6 +53,16 @@ The default preset, **X (audio-first)**, makes these choices:
   1 fps. Nearly all of the container is then audio. Good for pure audio
   posts.
 
+### Dropping an audio file
+
+An m4a, wav or mp3 keeps whichever video preset you picked and comes out as an
+MP4, because X and TikTok will not take a bare audio file. A **Picture** card
+appears: give it a JPG or PNG and that becomes the still frame for the whole
+track; leave it empty and the video is a black frame at the preset's size.
+The picture is scaled to fit and padded with black, never stretched, and the
+preview tile shows the exact shape the output will have. If you really do just
+want the audio, **Audio only (M4A)** is still one click away.
+
 Other presets: **X (balanced)** (1080p, 30 fps, 6000 kb/s, 256k AAC, no low-pass),
 **TikTok / Shorts** (vertical 1080x1920, 8000 kb/s), **Audio only** (an
 `.m4a`), and **Custom** (every knob exposed). All presets are one table in
@@ -85,6 +95,20 @@ Output goes next to the input as `<name>_<preset>.mp4` (or to a folder you
 choose). Existing files are never overwritten; `-1`, `-2` is appended.
 
 The **Log** section shows every ffmpeg command and its output.
+
+## How it looks
+
+The default skin is "VRChat": frosted-glass panels floating over one of
+kenshi2K's own pictures, with the avatar as a glowing nameplate in the header.
+The picture cycles through the birthday fan art, a chalkboard world capture
+and a shrine capture, or turns off for a flat dark page. Colour is the
+avatar's dusty mauve for everything structural and one warm gold, from the
+Bali sunset banner, on exactly three controls: Process, Download and the
+progress bar.
+
+The interface speaks English, Bahasa Indonesia and Japanese; the pill in the
+header cycles them and it remembers your choice. The full design, including
+every screen state and the copy in all three languages, is in `design/`.
 
 ## Using the browser version
 
@@ -178,7 +202,7 @@ internal/ui/          the Fyne window
 internal/config/      %APPDATA%\audioprep\config.json
 assets/               app icon (the owner's avatar; embedded), icon-waveform.png is the old one
 tools/genicon/        draws the old waveform icon
-design/               brief, persona, brand tokens and screenshots for a design pass
+design/               the design pass: brief, persona, tokens, assets, screenshots
 web/                  the browser version (Vite + ffmpeg.wasm)
 ```
 
