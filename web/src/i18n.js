@@ -1,3 +1,10 @@
+// Kenshi AudioPrep UI strings, EN / ID / JP.
+//
+// The bulk of this table is the owner's own copy pass, taken verbatim from the
+// approved design and not to be reworded. The exceptions, added later because
+// the design had no key for them, are `background` and the fn.warn* entries
+// other than warnDur: those are written in the same register but were not
+// reviewed by the owner, so treat them as drafts.
 // Every user-visible string in the app. Three languages, one table.
 // The `fn` entries are formatters: they own their own word order and units, so
 // callers must never build a sentence out of fragments.
@@ -8,7 +15,7 @@
 export const STR = {
   en: {
     code: 'EN', subtitle: "So your covers don't get crushed on X / TikTok. Runs 100% in your browser.",
-    desktop: 'Desktop app', themeToggle: 'Toggle dark / light theme', langToggle: 'Language: English. Click for Bahasa Indonesia',
+    desktop: 'Desktop app', background: 'Background', themeToggle: 'Toggle dark / light theme', langToggle: 'Language: English. Click for Bahasa Indonesia',
     dropTitle: 'Drop your cover here, or click to browse', dropHint: 'MP4, MOV, MKV, WebM, AVI, M4A, WAV or MP3. Nothing leaves your device.',
     input: 'Input', size: 'Size', duration: 'Duration', video: 'Video', videoBitrate: 'Video bitrate', audio: 'Audio', audioBitrate: 'Audio bitrate', statusRow: 'Status', reading: 'Reading…',
     rotated: 'rotated 90°', over: 'over 140 s', audioOnlyBadge: 'audio only', none: 'none',
@@ -25,11 +32,11 @@ export const STR = {
     log: 'Log', logHint: 'Every ffmpeg command and its output.', clear: 'Clear', logEmpty: "# log is empty. so is kenshi's sleep schedule.",
     coreErr: 'FFmpeg core failed to load.', coreLoading: 'FFmpeg core: loading…', coreReady: 'FFmpeg core: ready', coreReadyNote: 'single-threaded wasm',
     honest: 'X will still re-encode your video. This just hands it the cleanest possible input; it does not skip the compression.',
-    fn: { eta: (m, s) => m ? `about ${m} min ${s} s left` : `about ${s} s left`, dur: (m, s) => m ? `${m} min ${s} s` : `${s} s`, summary: (d, I, TP, size) => `Done in ${d}. ${I} LUFS, ${TP} dBTP, ${size}.`, warnDur: (d, max) => `Duration is ${d} s. X allows up to ${max} s for most accounts.`, lines: (n) => n === 1 ? '1 line' : `${n} lines`, coverEmpty: (w, h) => `No picture yet. The video will be a black ${w}x${h} frame, which X and TikTok accept fine.`, coverSet: (name, w, h, ow, oh) => `${name} · ${ow}x${oh}, scaled to ${w}x${h}.` },
+    fn: { eta: (m, s) => m ? `about ${m} min ${s} s left` : `about ${s} s left`, dur: (m, s) => m ? `${m} min ${s} s` : `${s} s`, summary: (d, I, TP, size) => `Done in ${d}. ${I} LUFS, ${TP} dBTP, ${size}.`, warnDur: (d, max) => `Duration is ${d} s. X allows up to ${max} s for most accounts.`, warnSize: (mb, max) => `File is ${mb} MB. X rejects uploads over ${max} MB.`, warnRes: (w, h, mw, mh) => `Resolution ${w}x${h} is over X's ${mw}x${mh} limit.`, warnFps: (fps, max) => `Frame rate ${fps} fps is above ${max}. X may reject it or drop frames.`, lines: (n) => n === 1 ? '1 line' : `${n} lines`, coverEmpty: (w, h) => `No picture yet. The video will be a black ${w}x${h} frame, which X and TikTok accept fine.`, coverSet: (name, w, h, ow, oh) => `${name} · ${ow}x${oh}, scaled to ${w}x${h}.` },
   },
   id: {
     code: 'ID', subtitle: 'Biar cover kamu nggak pecah di X / TikTok. Jalan 100% di browser.',
-    desktop: 'Aplikasi desktop', themeToggle: 'Ganti tema gelap / terang', langToggle: 'Bahasa: Indonesia. Klik untuk 日本語',
+    desktop: 'Aplikasi desktop', background: 'Latar', themeToggle: 'Ganti tema gelap / terang', langToggle: 'Bahasa: Indonesia. Klik untuk 日本語',
     dropTitle: 'Drop cover kamu di sini, atau klik buat pilih file', dropHint: 'MP4, MOV, MKV, WebM, AVI, M4A, WAV atau MP3. Nggak ada yang keluar dari device kamu.',
     input: 'Input', size: 'Ukuran', duration: 'Durasi', video: 'Video', videoBitrate: 'Bitrate video', audio: 'Audio', audioBitrate: 'Bitrate audio', statusRow: 'Status', reading: 'Membaca…',
     rotated: 'diputar 90°', over: 'lebih dari 140 s', audioOnlyBadge: 'audio saja', none: 'nggak ada',
@@ -46,11 +53,11 @@ export const STR = {
     log: 'Log', logHint: 'Semua perintah ffmpeg dan outputnya.', clear: 'Bersihkan', logEmpty: '# log masih kosong. sama kayak jam tidur kenshi.',
     coreErr: 'FFmpeg core gagal dimuat.', coreLoading: 'FFmpeg core: memuat…', coreReady: 'FFmpeg core: siap', coreReadyNote: 'wasm single-thread',
     honest: 'X tetap bakal re-encode video kamu. Ini cuma ngasih input sebersih mungkin, bukan lewatin kompresinya.',
-    fn: { eta: (m, s) => m ? `sekitar ${m} mnt ${s} s lagi` : `sekitar ${s} s lagi`, dur: (m, s) => m ? `${m} mnt ${s} s` : `${s} s`, summary: (d, I, TP, size) => `Selesai dalam ${d}. ${I} LUFS, ${TP} dBTP, ${size}.`, warnDur: (d, max) => `Durasinya ${d} s. X cuma kasih sampai ${max} s buat kebanyakan akun.`, lines: (n) => `${n} baris`, coverEmpty: (w, h) => `Belum ada gambar. Videonya jadi frame hitam ${w}x${h}, X dan TikTok terima kok.`, coverSet: (name, w, h, ow, oh) => `${name} · ${ow}x${oh}, di-scale ke ${w}x${h}.` },
+    fn: { eta: (m, s) => m ? `sekitar ${m} mnt ${s} s lagi` : `sekitar ${s} s lagi`, dur: (m, s) => m ? `${m} mnt ${s} s` : `${s} s`, summary: (d, I, TP, size) => `Selesai dalam ${d}. ${I} LUFS, ${TP} dBTP, ${size}.`, warnDur: (d, max) => `Durasinya ${d} s. X cuma kasih sampai ${max} s buat kebanyakan akun.`, warnSize: (mb, max) => `Filenya ${mb} MB. X nolak upload di atas ${max} MB.`, warnRes: (w, h, mw, mh) => `Resolusinya ${w}x${h}, lewat batas X yang ${mw}x${mh}.`, warnFps: (fps, max) => `Frame rate-nya ${fps} fps, di atas ${max}. X bisa nolak atau nurunin.`, lines: (n) => `${n} baris`, coverEmpty: (w, h) => `Belum ada gambar. Videonya jadi frame hitam ${w}x${h}, X dan TikTok terima kok.`, coverSet: (name, w, h, ow, oh) => `${name} · ${ow}x${oh}, di-scale ke ${w}x${h}.` },
   },
   jp: {
     code: 'JP', subtitle: '歌ってみたがXやTikTokで潰れないように。100%ブラウザの中で動きます。',
-    desktop: 'デスクトップ版', themeToggle: 'ダーク / ライトを切り替え', langToggle: '言語: 日本語。クリックで English',
+    desktop: 'デスクトップ版', background: '背景', themeToggle: 'ダーク / ライトを切り替え', langToggle: '言語: 日本語。クリックで English',
     dropTitle: 'ここに動画をドロップ、またはクリックして選ぶ', dropHint: 'MP4、MOV、MKV、WebM、AVI、M4A、WAV、MP3。端末の外には何も送りません。',
     input: '入力', size: 'サイズ', duration: '長さ', video: 'ビデオ', videoBitrate: 'ビデオビットレート', audio: 'オーディオ', audioBitrate: 'オーディオビットレート', statusRow: '状態', reading: '読み込み中…',
     rotated: '90° 回転', over: '140 s 超え', audioOnlyBadge: '音声のみ', none: 'なし',
@@ -67,7 +74,7 @@ export const STR = {
     log: 'ログ', logHint: 'すべての ffmpeg コマンドとその出力。', clear: 'クリア', logEmpty: '# ログはまだ空。kenshi はたぶん寝てる。',
     coreErr: 'FFmpeg core の読み込みに失敗しました。', coreLoading: 'FFmpeg core: 読み込み中…', coreReady: 'FFmpeg core: 準備完了', coreReadyNote: 'シングルスレッド wasm',
     honest: 'X はそれでも動画を再エンコードします。これは一番きれいな入力を渡すだけで、圧縮を回避するものではありません。',
-    fn: { eta: (m, s) => m ? `残り約 ${m} 分 ${s} 秒` : `残り約 ${s} 秒`, dur: (m, s) => m ? `${m} 分 ${s} 秒` : `${s} 秒`, summary: (d, I, TP, size) => `${d}で完了。${I} LUFS、${TP} dBTP、${size}。`, warnDur: (d, max) => `長さが ${d} s あります。X はほとんどのアカウントで ${max} s までです。`, lines: (n) => `${n} 行`, coverEmpty: (w, h) => `画像はまだなし。映像は ${w}x${h} の黒い画面になります。X も TikTok もそれで通るよ。`, coverSet: (name, w, h, ow, oh) => `${name} · ${ow}x${oh} → ${w}x${h} に縮小。` },
+    fn: { eta: (m, s) => m ? `残り約 ${m} 分 ${s} 秒` : `残り約 ${s} 秒`, dur: (m, s) => m ? `${m} 分 ${s} 秒` : `${s} 秒`, summary: (d, I, TP, size) => `${d}で完了。${I} LUFS、${TP} dBTP、${size}。`, warnDur: (d, max) => `長さが ${d} s あります。X はほとんどのアカウントで ${max} s までです。`, warnSize: (mb, max) => `ファイルが ${mb} MB あります。X は ${max} MB を超えるとアップできません。`, warnRes: (w, h, mw, mh) => `解像度が ${w}x${h} で、X の上限 ${mw}x${mh} を超えています。`, warnFps: (fps, max) => `フレームレートが ${fps} fps で、${max} を超えています。X が弾くか間引くかもしれません。`, lines: (n) => `${n} 行`, coverEmpty: (w, h) => `画像はまだなし。映像は ${w}x${h} の黒い画面になります。X も TikTok もそれで通るよ。`, coverSet: (name, w, h, ow, oh) => `${name} · ${ow}x${oh} → ${w}x${h} に縮小。` },
   },
 };
 

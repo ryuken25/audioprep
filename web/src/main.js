@@ -148,7 +148,7 @@ function applySkin(skin, world) {
     els.worldImg.removeAttribute('src'); // an empty src would re-request the page
   }
   els.skinName.textContent = skin === 'vrchat' ? world : 'plain';
-  els.skinToggle.title = `Background: ${skin === 'vrchat' ? world : 'plain'}`;
+  els.skinToggle.title = `${t().background}: ${skin === 'vrchat' ? world : 'plain'}`;
   els.skinToggle.setAttribute('aria-label', els.skinToggle.title);
   // The credit belongs to the picture, so it goes when the picture goes.
   els.artCredit.hidden = skin !== 'vrchat';
@@ -887,7 +887,7 @@ function addRow(label, before, after, afterClass = '') {
 
 function warningText(w) {
   if (w.code === 'duration') return t().fn.warnDur(w.duration.toFixed(1), w.max);
-  return describeWarning(w); // no string-table entry for the size / resolution / fps ones
+  return describeWarning(w, t().fn);
 }
 
 function showResult(result, settings, elapsed) {

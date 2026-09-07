@@ -4,7 +4,7 @@ import { STR, LANGS, DEFAULT_LANG, getLang, setLang, nextLang, langFromNavigator
 import { PRESET_ORDER } from '../src/presets.js';
 import { STAGES } from '../src/pipeline.js';
 
-const FN_KEYS = ['eta', 'dur', 'summary', 'warnDur', 'lines', 'coverEmpty', 'coverSet'];
+const FN_KEYS = ['eta', 'dur', 'summary', 'warnDur', 'warnSize', 'warnRes', 'warnFps', 'lines', 'coverEmpty', 'coverSet'];
 
 /** Every leaf path in a table, as dotted strings, with the leaf's typeof. */
 function shape(obj, prefix = '', out = new Map()) {
@@ -56,6 +56,9 @@ test('every fn entry is present and returns a non-empty string', () => {
       dur: [0, 42],
       summary: ['1 min 2 s', '-14.0', '-1.0', '3.2 MB'],
       warnDur: ['150.0', 140],
+      warnSize: ['600', 512],
+      warnRes: [2560, 1440, 1920, 1200],
+      warnFps: [120, 60],
       lines: [12],
       coverEmpty: [1280, 720],
       coverSet: ['cover.jpg', 720, 720, 3000, 3000],

@@ -194,13 +194,25 @@ export function computeWarnings({ duration, sizeBytes, video }) {
   return out;
 }
 
-/** English sentence for a warning. The string table only covers `duration` (fn.warnDur). */
-export function describeWarning(w) {
+/**
+ * Turn a structured warning into a sentence in the current language.
+ * @param {object} w the warning from computeWarnings
+ * @param {object} [fn] the active language's fn table (STR[lang].fn). Falls
+ *   back to English when a caller has no language handy, e.g. a unit test.
+ */
+export function describeWarning(w, fn = null) {
+  const en = {
+    warnDur: (d, max) => `Duration is ${d} s. X allows up to ${max} s for most accounts.`,
+    warnSize: (mb, max) => `File is ${mb} MB. X rejects uploads over ${max} MB.`,
+    warnRes: (a, b, mw, mh) => `Resolution ${a}x${b} is over X's ${mw}x${mh} limit.`,
+    warnFps: (fps, max) => `Frame rate ${fps} fps is above ${max}. X may reject it or drop frames.`,
+  };
+  const f = { ...en, ...(fn || {}) };
   switch (w.code) {
-    case 'duration': return `Duration is ${w.duration.toFixed(1)} s. X allows up to ${w.max} s for most accounts.`;
-    case 'size': return `File is ${w.mb.toFixed(0)} MB. X rejects uploads over ${w.maxMb} MB.`;
-    case 'resolution': return `Resolution ${w.width}x${w.height} exceeds X's ${w.maxLong}x${w.maxShort} limit.`;
-    case 'fps': return `Frame rate ${w.fps} fps is above ${w.max}. X may reject or downsample it.`;
+    case 'duration': return f.warnDur(w.duration.toFixed(1), w.max);
+    case 'size': return f.warnSize(w.mb.toFixed(0), w.maxMb);
+    case 'resolution': return f.warnRes(w.width, w.height, w.maxLong, w.maxShort);
+    case 'fps': return f.warnFps(w.fps, w.max);
     default: return String(w.code || '');
   }
 }
