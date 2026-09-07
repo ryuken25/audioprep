@@ -247,6 +247,17 @@ set. Single-threaded works everywhere at the cost of speed. If the site
 ever moves to Cloudflare Pages (headers supported), switching to `core-mt`
 is a one-line change in `web/src/ffmpeg-runner.js`.
 
+**The core is fetched with our own downloader, not `@ffmpeg/util`'s
+`toBlobURL`.** The first live deploy failed to load with "body stream
+already read". GitHub Pages gzips `ffmpeg-core.wasm` (10 MB on the wire
+for 32 MB of content) and `toBlobURL`'s progress path compares
+Content-Length with the decompressed bytes it received, decides the
+download is incomplete, then re-reads a body that is already consumed.
+`web/src/fetch-blob.js` streams with progress and treats Content-Length as
+a hint. The real wasm size is injected by Vite at build time so the bar
+still has a true total. It worked under `vite preview` because that server
+does not compress. Moving to Vercel would not have helped; it gzips too.
+
 **Core files are self-hosted, copied at build time**, not loaded from a CDN.
 Some CDNs serve `.wasm` with the wrong MIME type, and a CDN outage would
 break the tool. They are in `.gitignore` because `npm run build` regenerates

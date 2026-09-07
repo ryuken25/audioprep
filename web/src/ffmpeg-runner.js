@@ -2,7 +2,10 @@
 // with per-command log capture, progress normalization, and cancel (terminate + reload).
 
 import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { toBlobURL } from '@ffmpeg/util';
+import { fetchToBlobURL } from './fetch-blob.js';
+
+// Injected by vite.config.js from the installed @ffmpeg/core; 0 when unknown.
+const CORE_WASM_BYTES = typeof __CORE_WASM_BYTES__ === 'number' ? __CORE_WASM_BYTES__ : 0;
 
 const TERMINATED_MSG = 'called FFmpeg.terminate()';
 
@@ -54,14 +57,15 @@ export class FFmpegRunner {
     const base = import.meta.env.BASE_URL;
     this.hooks.onStatus?.({ phase: 'loading', received: 0, total: 0 });
     try {
-      const coreURL = await toBlobURL(`${base}ffmpeg/ffmpeg-core.js`, 'text/javascript');
-      let received = 0;
-      const wasmURL = await toBlobURL(`${base}ffmpeg/ffmpeg-core.wasm`, 'application/wasm', true, (ev) => {
-        received = Math.max(received, ev.received || 0);
-        this.hooks.onStatus?.({ phase: 'downloading', received, total: ev.total > 0 ? ev.total : 0 });
+      // Own downloader instead of @ffmpeg/util's toBlobURL: that one fails on
+      // gzipped responses (see fetch-blob.js), which is what GitHub Pages sends.
+      const core = await fetchToBlobURL(`${base}ffmpeg/ffmpeg-core.js`, 'text/javascript');
+      const wasm = await fetchToBlobURL(`${base}ffmpeg/ffmpeg-core.wasm`, 'application/wasm', {
+        totalHint: CORE_WASM_BYTES,
+        onProgress: ({ received, total }) => this.hooks.onStatus?.({ phase: 'downloading', received, total }),
       });
-      this.coreBytes = received;
-      await ff.load({ coreURL, wasmURL });
+      this.coreBytes = wasm.bytes;
+      await ff.load({ coreURL: core.url, wasmURL: wasm.url });
     } catch (err) {
       this.hooks.onStatus?.({ phase: 'error', error: err });
       throw err;
