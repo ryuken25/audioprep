@@ -1,0 +1,141 @@
+/* Kenshi AudioPrep design tokens. Drop-in replacement for the :root blocks in web/src/style.css.
+   Dark is the default; <html data-theme="light"> switches. Sources: design/brand.json
+   (avatar mauve, banner gold, fan-art lavender). Fonts are self-hosted: Sora (OFL) for
+   headings, JetBrains Mono (OFL) for the log and file paths, system sans for body. */
+
+:root {
+  /* surfaces */
+  --bg: #0b0b0f;
+  --bg-elev: #111015;
+  --surface: #141116;
+  --surface-2: #1b171d;
+  --border: #2b2329;
+  --border-strong: #3d3139;
+  --glow: rgba(104, 72, 76, 0.32);            /* radial wash behind the header only */
+
+  /* text */
+  --text: #ece8ee;
+  --text-muted: #a39aa6;
+  --text-faint: #7a7080;                       /* decoration only, never body copy */
+
+  /* accent: dusty mauve from the avatar */
+  --accent: #8a6168;                           /* borders, selected outline, dots */
+  --accent-fill: #68484c;                      /* filled controls: checkbox, selected rail */
+  --accent-text: #d1adb3;                      /* mauve as text on dark surfaces */
+  --accent-soft: rgba(138, 97, 104, 0.22);     /* selected preset fill, drop-zone hover */
+
+  /* the one warm highlight: gold from the Bali banner. Process, Download, progress fill. */
+  --gold: #d7c093;
+  --gold-hover: #e6cf9f;
+  --on-gold: #1a1410;
+
+  /* states */
+  --focus: #9a97a2;                            /* focus ring, lavender: distinct from selection */
+  --ok: #8fbf9f;
+  --ok-soft: rgba(143, 191, 159, 0.14);
+  --warn: #d7c093;
+  --warn-soft: rgba(215, 192, 147, 0.13);
+  --error: #d17777;
+  --error-soft: rgba(209, 119, 119, 0.14);
+
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.02) inset, 0 8px 24px rgba(0, 0, 0, 0.35);
+
+  /* shape */
+  --radius-lg: 14px;   /* cards */
+  --radius-md: 10px;   /* preset cards, inputs group */
+  --radius-sm: 8px;    /* inputs, notices, ghost buttons */
+  --radius-xl: 16px;   /* drop zone */
+  --radius-pill: 999px;
+
+  /* spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-11: 44px;
+  --content-max: 780px; /* page column incl. 20px side padding -> 740px content */
+
+  /* type */
+  --font-display: "Sora", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, "Noto Sans JP", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --bg: #e6e6f0;                               /* lavender-light, from the fan-art desk */
+  --bg-elev: #f3f2f8;
+  --surface: #f8f7fb;
+  --surface-2: #ffffff;
+  --border: #d6d2df;
+  --border-strong: #b6afc2;
+  --glow: rgba(104, 72, 76, 0.12);
+
+  --text: #1c171d;
+  --text-muted: #5b5462;
+  --text-faint: #8b8496;
+
+  --accent: #5b3c3e;
+  --accent-fill: #5b3c3e;
+  --accent-text: #5b3c3e;
+  --accent-soft: rgba(91, 60, 62, 0.10);
+
+  --gold: #d7c093;
+  --gold-hover: #cdb383;
+  --on-gold: #1a1410;
+
+  --focus: #68484c;
+  --ok: #2f7d52;
+  --ok-soft: rgba(47, 125, 82, 0.12);
+  --warn: #7a5f24;
+  --warn-soft: rgba(215, 192, 147, 0.30);
+  --error: #b23b3b;
+  --error-soft: rgba(178, 59, 59, 0.08);
+
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(20, 10, 30, 0.06);
+  color-scheme: light;
+}
+
+/* VRChat skin (default). Every panel becomes frosted glass; an optional picture (the
+   birthday fan art, or a plain page) sits position:fixed behind the whole viewport, sized
+   to the window, so opening Advanced or a long result never moves or rescales it. At
+   360px it becomes a 760px band at the top of the frame instead. <html data-skin="vrchat">;
+   drop the attribute for the flat "studio" look. */
+
+:root[data-skin="vrchat"] {
+  --surface: rgba(20, 17, 22, 0.74);
+  --surface-2: rgba(255, 255, 255, 0.045);
+  --bg-elev: rgba(17, 16, 21, 0.72);
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.2);
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 12px 40px rgba(0, 0, 0, 0.45);
+  --glass-blur: blur(22px) saturate(1.4);        /* backdrop-filter on .card, .dropzone, header pills */
+  --world-filter: grayscale(0.18) brightness(0.8) contrast(1.03) blur(2px);
+  --world-overlay:
+    linear-gradient(180deg, rgba(104, 72, 76, 0.34) 0, rgba(104, 72, 76, 0) 520px),
+    linear-gradient(180deg, rgba(11, 11, 15, 0.7) 0, rgba(11, 11, 15, 0.5) 90px, rgba(11, 11, 15, 0.38) 240px, rgba(11, 11, 15, 0.62) 560px, rgba(11, 11, 15, 0.74) 820px, rgba(11, 11, 15, 0.74) 100%);
+  --text-lift: 0 1px 3px rgba(0, 0, 0, 0.75);     /* text-shadow on .status, .footer, .subtitle (they sit on the picture, not on glass) */
+  --avatar-glow: 0 0 0 2px var(--accent), 0 0 30px var(--accent-soft);
+  --selected-glow: 0 0 24px var(--accent-soft);   /* on the checked preset card */
+  --progress-glow: 0 0 14px rgba(215, 192, 147, 0.5);
+}
+
+:root[data-skin="vrchat"][data-theme="light"] {
+  --surface: rgba(248, 247, 251, 0.82);
+  --surface-2: rgba(255, 255, 255, 0.72);
+  --bg-elev: rgba(255, 255, 255, 0.78);
+  --border: rgba(28, 23, 29, 0.09);
+  --border-strong: rgba(28, 23, 29, 0.22);
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 12px 40px rgba(20, 10, 30, 0.12);
+  --world-filter: grayscale(0.2) brightness(1.08) blur(2px);
+  --world-overlay:
+    linear-gradient(180deg, rgba(104, 72, 76, 0.14) 0, rgba(104, 72, 76, 0) 520px),
+    linear-gradient(180deg, rgba(230, 230, 240, 0.84) 0, rgba(230, 230, 240, 0.68) 90px, rgba(230, 230, 240, 0.56) 240px, rgba(230, 230, 240, 0.72) 560px, rgba(230, 230, 240, 0.8) 820px, rgba(230, 230, 240, 0.8) 100%);
+  --text-lift: 0 1px 3px rgba(255, 255, 255, 0.85);
+}
+
+/* Fyne (desktop) cannot read CSS; the same values are listed in Desktop.dc.html as a colour sheet. */
