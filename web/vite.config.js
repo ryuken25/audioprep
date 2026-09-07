@@ -14,9 +14,13 @@ function coreWasmBytes() {
   }
 }
 
+// Two hosts: GitHub Pages serves the site under /audioprep/, Vercel at the
+// root. Vercel sets VERCEL=1 in its build environment; VITE_BASE overrides
+// both for anything else.
+const base = process.env.VITE_BASE || (process.env.VERCEL ? '/' : '/audioprep/');
+
 export default defineConfig({
-  // Deployed to GitHub Pages at https://ryuken25.github.io/audioprep/
-  base: '/audioprep/',
+  base,
   build: {
     outDir: 'dist',
     target: 'es2022',
