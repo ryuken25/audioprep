@@ -19,9 +19,14 @@ Screenshots of the web app as it looks today (v0.2) are in
 `current-screens/`. `02-custom-selected-dark.jpg` is the state the owner called
 ugly: the selected card gets a muddy olive fill (amber on blue-grey), a
 doubled border, and sits orphaned on its own row under a four-column grid.
-The disabled Process button is a dim brown slab. `04-light-theme-custom.jpg`
-shows the light theme, where the unselected cards render as dark grey
-slabs with unreadable text. Fix these first.
+The disabled Process button is a dim brown slab. Fix these first.
+
+`05` to `08` show the v0.3 quick fix that shipped while this brief was
+written: persona palette, avatar in the header, Custom as a full-width
+strip, a grey disabled button. Treat it as a floor, not the target. One
+caveat: the full-page capture tool darkens some light-theme surfaces
+(`09-...-artifact.jpg`); `08-v03-light-presets.png` is what the browser
+really shows.
 
 ## What the tool does, in one paragraph
 

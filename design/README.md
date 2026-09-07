@@ -12,7 +12,7 @@ designer) for a visual pass, without them having to read the code.
 | `assets/banner.jpg` | X banner, 1500x500. Source of the gold and sea-grey tokens. |
 | `assets/covers/` | Six cover-video thumbnails as posted. Show the black-and-white VRChat-photo style the covers use. |
 | `assets/photos/` | Fan art and a photo from the timeline. |
-| `current-screens/` | Screenshots of the web app as it looks today (v0.2), including the Custom state the owner dislikes. |
+| `current-screens/` | `01` to `03`: v0.2 dark, including the Custom state the owner disliked. `05` to `08`: v0.3 after the quick fix (dark, plus the light preset area). `09` is a full-page light capture whose dark card fills are a screenshot-tool artifact, kept only so nobody rediscovers it. |
 
 How to use it with Claude Design: attach the whole folder, paste `prompt.md`
 as the message, and ask for the deliverables listed at its end. The prompt
