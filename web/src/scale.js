@@ -33,3 +33,42 @@ export function fitDimensions(inW, inH, rotation, maxW, maxH) {
   const scaled = outW !== w || outH !== h;
   return { w: outW, h: outH, scaled };
 }
+
+/**
+ * Output frame for a still-picture encode (an audio input + a cover picture).
+ * The picture is padded to this exact box, so the cover tile in the UI can use the
+ * same aspect ratio as the finished video. Null when the preset has no video box.
+ *
+ * @param {number|null} maxW preset box width
+ * @param {number|null} maxH preset box height
+ * @returns {{w:number, h:number}|null} even-sized box
+ */
+export function coverBox(maxW, maxH, coverW = 0, coverH = 0) {
+  let w = Math.floor(Number(maxW));
+  let h = Math.floor(Number(maxH));
+  if (!Number.isFinite(w) || !Number.isFinite(h) || w < 2 || h < 2) return null;
+  // Turn the box to match the picture, so portrait art gives a portrait video
+  // instead of one with huge black pillars. A square picture keeps the
+  // preset's own orientation. This mirrors Request.CoverBox in the Go app;
+  // the two must agree or the same input gives two different outputs.
+  const cw = Math.floor(Number(coverW)) || 0;
+  const ch = Math.floor(Number(coverH)) || 0;
+  if (cw > 0 && ch > 0 && cw !== ch && (ch > cw) !== (h > w)) {
+    [w, h] = [h, w];
+  }
+  return { w: w - (w % 2), h: h - (h % 2) };
+}
+
+/**
+ * Size a picture takes inside a box, aspect ratio kept. Mirrors ffmpeg's
+ * `scale=W:H:force_original_aspect_ratio=decrease`, which also scales small
+ * pictures up to fill the box (unlike fitDimensions, which never upscales).
+ */
+export function fitInsideBox(inW, inH, boxW, boxH) {
+  const w = Math.max(1, Math.floor(Number(inW) || 0));
+  const h = Math.max(1, Math.floor(Number(inH) || 0));
+  const bw = Math.max(1, Math.floor(Number(boxW) || 0));
+  const bh = Math.max(1, Math.floor(Number(boxH) || 0));
+  const ratio = Math.min(bw / w, bh / h);
+  return { w: Math.max(1, Math.round(w * ratio)), h: Math.max(1, Math.round(h * ratio)) };
+}

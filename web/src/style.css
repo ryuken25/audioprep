@@ -1,86 +1,280 @@
-/* Kenshi AudioPrep. Dark by default, system fonts. Tokens below. */
+/* Kenshi AudioPrep. VRChat skin on by default, dark by default.
+   Tokens are design/tokens.css verbatim. Self-hosted fonts, no network requests. */
+
+/* ---------- Fonts ---------- */
+/* Sora for headings, JetBrains Mono for the log, file names, units and numbers.
+   Two files per weight: the latin subset, and latin-ext for the accented characters. */
+
+@font-face {
+  font-family: "Sora";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/Sora-400-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Sora";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/Sora-400-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Sora";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/Sora-500-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Sora";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/Sora-500-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Sora";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/Sora-600-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Sora";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/Sora-600-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Sora";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/Sora-700-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Sora";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/Sora-700-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/JetBrainsMono-400-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/JetBrainsMono-400-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/JetBrainsMono-500-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/JetBrainsMono-500-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ---------- Tokens ---------- */
 
 :root {
-  /* Persona palette: near-black and dusty mauve from the avatar, gold from
-     the Bali sunset banner. See design/brand.json. */
+  /* surfaces */
   --bg: #0b0b0f;
   --bg-elev: #111015;
-  --card: #141116;
-  --card-2: #1b171d;
+  --surface: #141116;
+  --surface-2: #1b171d;
   --border: #2b2329;
   --border-strong: #3d3139;
+  --glow: rgba(104, 72, 76, 0.32);            /* radial wash behind the header only */
+
+  /* text */
   --text: #ece8ee;
   --text-muted: #a39aa6;
-  --text-faint: #6e6572;
-  --accent: #d7c093;
-  --accent-hover: #e6cf9f;
-  --accent-soft: rgba(215, 192, 147, 0.1);
-  --accent-ring: rgba(215, 192, 147, 0.35);
-  --on-accent: #1a1410;
-  --mauve: #68484c;
+  --text-faint: #7a7080;                       /* decoration only, never body copy */
+
+  /* accent: dusty mauve from the avatar */
+  --accent: #8a6168;                           /* borders, selected outline, dots */
+  --accent-fill: #68484c;                      /* filled controls: checkbox, selected rail */
+  --accent-text: #d1adb3;                      /* mauve as text on dark surfaces */
+  --accent-soft: rgba(138, 97, 104, 0.22);     /* selected preset fill, drop-zone hover */
+
+  /* the one warm highlight: gold from the Bali banner. Process, Download, progress fill. */
+  --gold: #d7c093;
+  --gold-hover: #e6cf9f;
+  --on-gold: #1a1410;
+
+  /* states */
+  --focus: #9a97a2;                            /* focus ring, lavender: distinct from selection */
   --ok: #8fbf9f;
+  --ok-soft: rgba(143, 191, 159, 0.14);
   --warn: #d7c093;
-  --warn-soft: rgba(215, 192, 147, 0.12);
-  --danger: #d17777;
-  --danger-soft: rgba(209, 119, 119, 0.12);
+  --warn-soft: rgba(215, 192, 147, 0.13);
+  --error: #d17777;
+  --error-soft: rgba(209, 119, 119, 0.14);
+
   --shadow: 0 1px 0 rgba(255, 255, 255, 0.02) inset, 0 8px 24px rgba(0, 0, 0, 0.35);
-  --radius: 14px;
-  --radius-sm: 9px;
-  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+  /* shape */
+  --radius-lg: 14px;   /* cards */
+  --radius-md: 10px;   /* preset cards, inputs group */
+  --radius-sm: 8px;    /* inputs, notices, ghost buttons */
+  --radius-xl: 16px;   /* drop zone */
+  --radius-pill: 999px;
+
+  /* spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-11: 44px;
+  --content-max: 780px; /* page column incl. 20px side padding -> 740px content */
+
+  /* type */
+  --font-display: "Sora", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, "Noto Sans JP", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
   color-scheme: dark;
 }
 
 :root[data-theme="light"] {
-  --bg: #f1eef4;
-  --bg-elev: #ffffff;
-  --card: #ffffff;
-  --card-2: #f7f4f9;
-  --border: #e3dce7;
-  --border-strong: #cbc1d1;
+  --bg: #e6e6f0;                               /* lavender-light, from the fan-art desk */
+  --bg-elev: #f3f2f8;
+  --surface: #f8f7fb;
+  --surface-2: #ffffff;
+  --border: #d6d2df;
+  --border-strong: #b6afc2;
+  --glow: rgba(104, 72, 76, 0.12);
+
   --text: #1c171d;
-  --text-muted: #5f5664;
-  --text-faint: #958ca0;
+  --text-muted: #5b5462;
+  --text-faint: #8b8496;
+
   --accent: #5b3c3e;
-  --accent-hover: #6f4c4f;
-  --accent-soft: rgba(91, 60, 62, 0.08);
-  --accent-ring: rgba(91, 60, 62, 0.3);
-  --on-accent: #ffffff;
-  --mauve: #68484c;
-  --ok: #2f8f5b;
-  --warn: #8a6d2f;
-  --warn-soft: rgba(215, 192, 147, 0.28);
-  --danger: #b23b3b;
-  --danger-soft: rgba(178, 59, 59, 0.08);
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --accent-fill: #5b3c3e;
+  --accent-text: #5b3c3e;
+  --accent-soft: rgba(91, 60, 62, 0.10);
+
+  --gold: #d7c093;
+  --gold-hover: #cdb383;
+  --on-gold: #1a1410;
+
+  --focus: #68484c;
+  --ok: #2f7d52;
+  --ok-soft: rgba(47, 125, 82, 0.12);
+  --warn: #7a5f24;
+  --warn-soft: rgba(215, 192, 147, 0.30);
+  --error: #b23b3b;
+  --error-soft: rgba(178, 59, 59, 0.08);
+
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(20, 10, 30, 0.06);
   color-scheme: light;
 }
+
+/* VRChat skin (default). Every panel becomes frosted glass; an optional picture (the
+   birthday fan art, or a plain page) sits position:fixed behind the whole viewport, sized
+   to the window, so opening Advanced or a long result never moves or rescales it. At
+   360px it becomes a 760px band at the top of the frame instead. <html data-skin="vrchat">;
+   drop the attribute for the flat "studio" look. */
+
+:root[data-skin="vrchat"] {
+  --surface: rgba(20, 17, 22, 0.74);
+  --surface-2: rgba(255, 255, 255, 0.045);
+  --bg-elev: rgba(17, 16, 21, 0.72);
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.2);
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 12px 40px rgba(0, 0, 0, 0.45);
+  --glass-blur: blur(22px) saturate(1.4);        /* backdrop-filter on .card, .dropzone, header pills */
+  --world-filter: grayscale(0.18) brightness(0.8) contrast(1.03) blur(2px);
+  --world-overlay:
+    linear-gradient(180deg, rgba(104, 72, 76, 0.34) 0, rgba(104, 72, 76, 0) 520px),
+    linear-gradient(180deg, rgba(11, 11, 15, 0.7) 0, rgba(11, 11, 15, 0.5) 90px, rgba(11, 11, 15, 0.38) 240px, rgba(11, 11, 15, 0.62) 560px, rgba(11, 11, 15, 0.74) 820px, rgba(11, 11, 15, 0.74) 100%);
+  --text-lift: 0 1px 3px rgba(0, 0, 0, 0.75);     /* text-shadow on .status, .footer, .subtitle (they sit on the picture, not on glass) */
+  --avatar-glow: 0 0 0 2px var(--accent), 0 0 30px var(--accent-soft);
+  --selected-glow: 0 0 24px var(--accent-soft);   /* on the checked preset card */
+  --progress-glow: 0 0 14px rgba(215, 192, 147, 0.5);
+}
+
+:root[data-skin="vrchat"][data-theme="light"] {
+  --surface: rgba(248, 247, 251, 0.82);
+  --surface-2: rgba(255, 255, 255, 0.72);
+  --bg-elev: rgba(255, 255, 255, 0.78);
+  --border: rgba(28, 23, 29, 0.09);
+  --border-strong: rgba(28, 23, 29, 0.22);
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 12px 40px rgba(20, 10, 30, 0.12);
+  --world-filter: grayscale(0.2) brightness(1.08) blur(2px);
+  --world-overlay:
+    linear-gradient(180deg, rgba(104, 72, 76, 0.14) 0, rgba(104, 72, 76, 0) 520px),
+    linear-gradient(180deg, rgba(230, 230, 240, 0.84) 0, rgba(230, 230, 240, 0.68) 90px, rgba(230, 230, 240, 0.56) 240px, rgba(230, 230, 240, 0.72) 560px, rgba(230, 230, 240, 0.8) 820px, rgba(230, 230, 240, 0.8) 100%);
+  --text-lift: 0 1px 3px rgba(255, 255, 255, 0.85);
+}
+
+/* ---------- Base ---------- */
 
 * { box-sizing: border-box; }
 
 html { -webkit-text-size-adjust: 100%; }
 
 body {
+  position: relative;
   margin: 0;
   font-family: var(--font);
   font-size: 15px;
   line-height: 1.5;
   color: var(--text);
   background: var(--bg);
-  background-image:
-    radial-gradient(1200px 500px at 50% -200px, var(--accent-soft), transparent 70%);
   min-height: 100vh;
+}
+
+/* The flat look keeps the old radial wash behind the header. */
+:root[data-skin="studio"] body {
+  background-image: radial-gradient(1200px 500px at 50% -200px, var(--glow), transparent 70%);
 }
 
 [hidden] { display: none !important; }
 
-a { color: var(--accent); text-decoration: none; }
-a:hover { color: var(--accent-hover); }
+a { color: var(--accent-text); text-decoration: none; }
+a:hover { color: var(--text); }
 
-h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -0.01em; }
+h1, h2, h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
 h1 { font-size: 20px; }
 h2 { font-size: 15px; }
-h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+h3 { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
 
 p { margin: 0; }
 
@@ -88,15 +282,44 @@ p { margin: 0; }
 .muted { color: var(--text-muted); }
 .small { font-size: 13px; }
 
+/* One ring everywhere, in lavender, so keyboard focus never reads as selection. */
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 
-/* Layout */
+/* ---------- World background ---------- */
+
+.world {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.world-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 60%;
+  filter: var(--world-filter);
+  transform: scale(1.03);
+}
+.world-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--world-overlay);
+}
+:root[data-skin="studio"] .world { display: none; }
+
+/* ---------- Layout ---------- */
 
 .page {
-  max-width: 780px;
+  position: relative;
+  z-index: 1;
+  max-width: var(--content-max);
   margin: 0 auto;
   padding: 28px 20px 48px;
 }
@@ -107,7 +330,7 @@ main {
   gap: 18px;
 }
 
-/* Header */
+/* ---------- Header ---------- */
 
 .topbar {
   display: flex;
@@ -117,7 +340,8 @@ main {
   margin-bottom: 26px;
 }
 
-.brand { display: flex; align-items: center; gap: 14px; }
+.brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.brand > div { min-width: 0; } /* let the subtitle wrap before the pills do */
 
 .brand-mark {
   display: block;
@@ -132,22 +356,43 @@ main {
 }
 .brand-mark:hover { border-color: var(--accent); transform: translateY(-1px); }
 .brand-mark img { display: block; width: 100%; height: 100%; object-fit: cover; }
+:root[data-skin="vrchat"] .brand-mark { box-shadow: var(--avatar-glow); }
 
 .subtitle { color: var(--text-muted); font-size: 13.5px; margin-top: 2px; }
 
-.topbar-actions { display: flex; align-items: center; gap: 10px; }
+/* The four controls stay on one line; the brand text gives way first. */
+.topbar-actions { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; flex-wrap: nowrap; justify-content: flex-end; }
 
 .link-desktop {
   font-size: 13px;
   color: var(--text-muted);
   padding: 7px 10px;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--bg-elev);
   white-space: nowrap;
 }
 .link-desktop:hover { color: var(--text); border-color: var(--border-strong); }
 .link-desktop::after { content: " ↗"; opacity: 0.6; }
+
+/* Language and world pills. Their label is mono so it reads as a value, not a word. */
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--bg-elev);
+  color: var(--text-muted);
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.pill-btn .mono { font-size: 12px; letter-spacing: 0.02em; }
+.pill-btn:hover { color: var(--text); border-color: var(--border-strong); }
+.pill-btn .icon { flex: 0 0 auto; opacity: 0.8; }
 
 .icon-btn {
   width: 36px;
@@ -156,7 +401,7 @@ main {
   align-items: center;
   justify-content: center;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--bg-elev);
   color: var(--text-muted);
   cursor: pointer;
@@ -165,12 +410,42 @@ main {
 :root[data-theme="dark"] .icon-moon { display: none; }
 :root[data-theme="light"] .icon-sun { display: none; }
 
-/* Cards */
+/* ---------- Glass ---------- */
+
+:root[data-skin="vrchat"] .card,
+:root[data-skin="vrchat"] .dropzone,
+:root[data-skin="vrchat"] .link-desktop,
+:root[data-skin="vrchat"] #theme-toggle,
+:root[data-skin="vrchat"] #lang-toggle,
+:root[data-skin="vrchat"] #skin-toggle {
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+
+/* These three sit on the picture rather than on glass. */
+:root[data-skin="vrchat"] .status,
+:root[data-skin="vrchat"] .footer,
+:root[data-skin="vrchat"] .subtitle { text-shadow: var(--text-lift); }
+
+/* Quiet tiles sit directly on the picture rather than inside a card, so a
+   near-transparent surface with faint text disappears over a bright frame of
+   the world image (the chalkboard capture is mostly light). Give them the
+   same glass backing the cards get, and lift the text one step. */
+:root[data-skin="vrchat"] .btn-primary:disabled,
+:root[data-skin="vrchat"] .btn:disabled {
+  background: var(--bg-elev);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+/* ---------- Cards ---------- */
 
 .card {
-  background: var(--card);
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   padding: 18px 20px;
   box-shadow: var(--shadow);
 }
@@ -191,16 +466,17 @@ main {
   max-width: 60%;
 }
 
-/* Drop zone */
+/* ---------- Drop zone ---------- */
 
 .dropzone {
   border: 2px dashed var(--border-strong);
-  border-radius: var(--radius);
+  border-radius: var(--radius-xl);
   padding: 44px 20px;
   text-align: center;
   cursor: pointer;
   color: var(--text-muted);
-  background: transparent;
+  background: var(--surface);
+  box-shadow: var(--shadow);
   transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
 }
 .dropzone:hover, .dropzone:focus-visible { border-color: var(--accent); color: var(--text); }
@@ -210,23 +486,37 @@ main {
   color: var(--text);
 }
 .dropzone.is-busy { cursor: progress; opacity: 0.6; }
-.drop-icon { color: var(--accent); margin-bottom: 8px; }
-.drop-title { font-size: 16px; font-weight: 600; color: var(--text); }
+.drop-icon { color: var(--accent-text); margin-bottom: 8px; }
+.drop-title { font-family: var(--font-display); font-size: 16px; font-weight: 600; color: var(--text); }
 .drop-hint { font-size: 13px; margin-top: 6px; }
 
-/* Notice */
+/* ---------- Notice ---------- */
 
 .notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
   padding: 10px 14px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
-  background: var(--card-2);
+  background: var(--surface);
   font-size: 14px;
 }
+.notice::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  margin-top: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
 .notice.is-warn { background: var(--warn-soft); border-color: transparent; color: var(--warn); }
-.notice.is-error { background: var(--danger-soft); border-color: transparent; color: var(--danger); }
+.notice.is-warn::before { background: var(--warn); }
+.notice.is-error { background: var(--error-soft); border-color: transparent; color: var(--error); }
+.notice.is-error::before { background: var(--error); }
 
-/* File info */
+/* ---------- File info ---------- */
 
 .info-grid {
   display: grid;
@@ -237,33 +527,68 @@ main {
 .info-item { min-width: 0; }
 .info-grid dt { font-size: 11.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
 .info-grid dd { margin: 3px 0 0; font-size: 14px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; overflow-wrap: anywhere; }
+.info-grid .value-mono { font-family: var(--mono); font-size: 12.5px; }
 
 .badge {
   display: inline-block;
   font-size: 11px;
   font-weight: 600;
   padding: 1px 7px;
-  border-radius: 999px;
-  background: var(--card-2);
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
   border: 1px solid var(--border);
   color: var(--text-muted);
   line-height: 1.6;
 }
 .badge.is-warn { background: var(--warn-soft); color: var(--warn); border-color: transparent; }
-.badge.is-accent { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+.badge.is-accent { background: var(--accent-soft); color: var(--accent-text); border-color: transparent; }
 
-/* Presets */
+/* ---------- Picture card ---------- */
+
+.cover-row { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+
+/* The tile is the output frame: same aspect ratio, black where the picture will be padded. */
+.cover-drop {
+  position: relative;
+  flex: 0 0 auto;
+  height: 132px;
+  width: auto;
+  aspect-ratio: var(--cover-ar, 16 / 9);
+  min-width: 60px;
+  max-width: 100%;
+  background: #000;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: border-color 0.12s ease;
+}
+.cover-drop:hover, .cover-drop.is-over { border-color: var(--accent); }
+.cover-preview {
+  position: absolute;
+  inset: 0;
+  background: #000;
+}
+.cover-empty {
+  position: relative;
+  color: var(--text-faint);
+  font-size: 11px;
+  pointer-events: none;
+}
+.cover-drop.has-picture .cover-empty { display: none; }
+
+.cover-copy { flex: 1 1 240px; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.cover-hint { color: var(--text-faint); }
+.cover-actions { display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
+
+/* ---------- Presets ---------- */
 
 .preset-list {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
-}
-@media (min-width: 720px) {
-  .preset-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-}
-@media (max-width: 440px) {
-  .preset-list { grid-template-columns: minmax(0, 1fr); }
 }
 
 .preset {
@@ -271,49 +596,38 @@ main {
   display: block;
   padding: 12px 14px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--card-2);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
   color: var(--text);
   cursor: pointer;
+  overflow: hidden;
   transition: border-color 0.12s ease, background-color 0.12s ease, transform 0.12s ease;
 }
 .preset:hover { border-color: var(--border-strong); transform: translateY(-1px); }
 .preset input { position: absolute; opacity: 0; pointer-events: none; }
+
+/* Selected: one border, a mauve rail on the left, a mauve fill. No second outline. */
 .preset:has(input:checked) {
   border-color: var(--accent);
-  background: var(--card-2);
+  background: var(--accent-soft);
+  box-shadow: var(--selected-glow, none);
 }
-.preset:has(input:checked)::after {
+.preset:has(input:checked)::before {
   content: "";
   position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 0 4px var(--accent-soft);
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent-fill);
 }
-.preset:has(input:checked) .preset-name { color: var(--accent); }
-.preset:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
-.preset-name { display: block; font-weight: 600; font-size: 14px; padding-right: 18px; }
-.preset-desc { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 3px; line-height: 1.4; }
-/* Custom is the odd one out: give it the whole last row as a compact strip. */
-.preset:last-child {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 2px 12px;
-  padding: 10px 14px;
-  background: transparent;
-  border-style: dashed;
-}
-.preset:last-child:has(input:checked) { border-style: solid; background: var(--accent-soft); }
-.preset:last-child .preset-desc { margin-top: 0; }
+.preset:has(input:checked) .preset-name { color: var(--accent-text); }
+.preset:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
+.preset-name { display: block; font-weight: 600; font-size: 13.5px; }
+.preset-desc { display: block; font-size: 12px; color: var(--text-muted); margin-top: 4px; line-height: 1.45; }
 .preset-list.is-disabled .preset { opacity: 0.55; pointer-events: none; }
 
-/* Advanced */
+/* ---------- Advanced ---------- */
 
 .advanced { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 10px; }
 .advanced summary {
@@ -342,7 +656,7 @@ main {
 
 .adv-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 18px 24px;
   margin-top: 14px;
 }
@@ -355,26 +669,44 @@ main {
   font-size: 13.5px;
   color: var(--text);
 }
-.adv-group label .unit { color: var(--text-faint); font-size: 12px; }
+.adv-group label .adv-label { flex: 1 1 auto; min-width: 0; }
+.adv-group label .unit {
+  flex: 0 0 auto;
+  width: 36px;
+  color: var(--text-faint);
+  font-size: 11px;
+  text-align: left;
+}
 .adv-group label input[type="number"] {
-  margin-left: auto;
-  width: 96px;
+  flex: 0 0 auto;
+  width: 76px;
   padding: 6px 8px;
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border-strong);
   background: var(--bg-elev);
   color: var(--text);
-  font: inherit;
-  font-size: 13.5px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  text-align: right;
   font-variant-numeric: tabular-nums;
 }
-.adv-group label input[type="number"]:focus { outline: 2px solid var(--accent-ring); outline-offset: 0; border-color: var(--accent); }
+/* Hide the spin buttons: the values are typed, not nudged. */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+
+.adv-group label input[type="number"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.adv-group label input[type="number"]:focus-visible { outline: none; }
 .adv-group label.check { cursor: pointer; }
-.adv-group label.check input { accent-color: var(--accent); width: 15px; height: 15px; margin: 0; }
+.adv-group label.check input { accent-color: var(--accent-fill); width: 15px; height: 15px; margin: 0; flex: 0 0 auto; }
 .adv-group label:has(input:disabled) { opacity: 0.45; }
 .adv-group.is-off { opacity: 0.45; pointer-events: none; }
 
-/* Buttons */
+/* ---------- Buttons ---------- */
 
 .btn {
   display: inline-flex;
@@ -384,7 +716,7 @@ main {
   padding: 9px 16px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-strong);
-  background: var(--card-2);
+  background: var(--surface-2);
   color: var(--text);
   font: inherit;
   font-weight: 600;
@@ -395,39 +727,61 @@ main {
 .btn:hover { border-color: var(--text-faint); }
 .btn:active { transform: translateY(1px); }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
-.btn-primary:disabled { background: var(--card-2); border-color: var(--border-strong); color: var(--text-faint); opacity: 1; }
 
+/* The only three gold things in the app: Process, Download, the progress fill. */
 .btn-primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--on-accent);
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--on-gold);
 }
-.btn-primary:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); color: var(--on-accent); }
+.btn-primary:hover:not(:disabled) { background: var(--gold-hover); border-color: var(--gold-hover); color: var(--on-gold); }
+/* Disabled is a quiet tile, never a dimmed gold slab. */
+.btn-primary:disabled {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--text-faint);
+  opacity: 1;
+}
 
 .btn-ghost { background: transparent; }
-.btn-lg { width: 100%; padding: 14px 18px; font-size: 16px; border-radius: 12px; }
+.btn-lg { width: 100%; padding: 14px 18px; font-size: 16px; border-radius: var(--radius-md); font-family: var(--font-display); }
 .btn-tiny { padding: 3px 10px; font-size: 12px; font-weight: 500; }
+.btn-small { padding: 6px 12px; font-size: 13px; }
+
+.spinner {
+  display: none;
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: spin 0.7s linear infinite;
+}
+.btn.is-busy .spinner { display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .actions { display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
 .status { text-align: center; font-size: 13.5px; color: var(--text-muted); min-height: 1.4em; }
-.status.is-error { color: var(--danger); }
+.status.is-error { color: var(--error); }
 .status.is-ok { color: var(--ok); }
 
-/* Progress */
+/* ---------- Progress ---------- */
 
 .progress-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; font-weight: 600; }
 .progress-track {
   height: 8px;
-  border-radius: 999px;
-  background: var(--card-2);
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
   border: 1px solid var(--border);
   overflow: hidden;
 }
 .progress-fill {
   height: 100%;
   width: 0%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--gold), var(--gold-hover));
+  box-shadow: var(--progress-glow, none);
   transition: width 0.2s ease;
 }
 .progress-fill.is-indeterminate {
@@ -438,9 +792,9 @@ main {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(400%); }
 }
-.progress-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+.progress-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; gap: 12px; }
 
-/* Result */
+/* ---------- Result ---------- */
 
 .warnings { list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .warnings li {
@@ -459,8 +813,11 @@ main {
 .compare { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 .compare th, .compare td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
 .compare thead th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600; }
+/* The Output column is the answer, so it carries the mauve. */
+.compare thead th.col-out { color: var(--accent-text); }
 .compare tbody th { font-weight: 500; color: var(--text-muted); white-space: nowrap; width: 34%; }
-.compare tbody td { font-variant-numeric: tabular-nums; }
+.compare tbody td { font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.compare thead th.col-out, .compare tbody td:last-child { background: var(--accent-soft); }
 .compare tbody tr:last-child th, .compare tbody tr:last-child td { border-bottom: 0; }
 .compare td.is-good { color: var(--ok); }
 .compare td.is-warn { color: var(--warn); }
@@ -468,12 +825,13 @@ main {
 .result-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
 .result-actions .btn-primary { flex: 1 1 200px; }
 
-/* Log */
+/* ---------- Log ---------- */
 
 .log-card { padding: 0; overflow: hidden; }
 .log-card > summary {
   padding: 14px 20px;
   cursor: pointer;
+  font-family: var(--font-display);
   font-weight: 600;
   font-size: 14px;
   user-select: none;
@@ -481,10 +839,12 @@ main {
   gap: 8px;
   align-items: baseline;
 }
+.log-card > summary::-webkit-details-marker { display: none; }
 .log-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   padding: 6px 20px 8px;
   border-top: 1px solid var(--border);
 }
@@ -497,14 +857,16 @@ main {
   font-size: 12px;
   line-height: 1.5;
   color: var(--text-muted);
-  background: var(--bg);
+  background: var(--bg-elev);
   white-space: pre-wrap;
   word-break: break-word;
 }
-.log .cmd { color: var(--accent); display: block; margin-top: 6px; }
-.log .err { color: var(--danger); }
+/* Empty-state line, kept in a data attribute so switching language updates it. */
+.log:empty::before { content: attr(data-empty); color: var(--text-faint); }
+.log .cmd { color: var(--accent-text); display: block; margin-top: 6px; }
+.log .err { color: var(--error); }
 
-/* Footer */
+/* ---------- Footer ---------- */
 
 .footer {
   margin-top: 34px;
@@ -516,19 +878,40 @@ main {
   font-size: 13px;
 }
 .core-status { display: flex; align-items: center; gap: 8px; color: var(--text-muted); }
-.dot { width: 8px; height: 8px; border-radius: 999px; background: var(--text-faint); flex: 0 0 auto; }
-.dot[data-state="loading"] { background: var(--warn); animation: pulse 1.2s ease-in-out infinite; }
+.dot { width: 8px; height: 8px; border-radius: var(--radius-pill); background: var(--text-faint); flex: 0 0 auto; }
+.dot[data-state="loading"] { background: var(--accent); animation: pulse 1.2s ease-in-out infinite; }
 .dot[data-state="ready"] { background: var(--ok); }
-.dot[data-state="error"] { background: var(--danger); }
+.dot[data-state="error"] { background: var(--error); }
 @keyframes pulse { 50% { opacity: 0.35; } }
+.credit { color: var(--text-faint); font-size: 11.5px; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 640px) {
+  .preset-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .preset:last-child { grid-column: 1 / -1; }
+}
 
 @media (max-width: 560px) {
   .page { padding: 18px 14px 36px; }
   .topbar { flex-direction: column; align-items: flex-start; }
-  .topbar-actions { align-self: flex-end; }
+  .topbar-actions { align-self: flex-end; flex-wrap: wrap; }
   .card { padding: 16px; }
   .file-name { max-width: 100%; }
   .card-head { flex-wrap: wrap; }
+
+  /* No fixed layer on phones: a band at the top of the page, faded out at its bottom. */
+  .world {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 760px;
+    -webkit-mask-image: linear-gradient(180deg, #000 0, #000 58%, transparent 100%);
+    mask-image: linear-gradient(180deg, #000 0, #000 58%, transparent 100%);
+  }
+}
+
+@media (max-width: 400px) {
+  .preset-list { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (prefers-reduced-motion: reduce) {

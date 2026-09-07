@@ -1,4 +1,5 @@
 // Encoding presets. Values mirror the desktop app exactly.
+// Descriptions live in src/i18n.js (STR[lang].presets[id]), not here.
 // The video box is "maxW x maxH" for landscape input; scale.js swaps it for portrait input.
 
 export const PRESET_ORDER = ['x-audio', 'x-balanced', 'tiktok', 'audio-only', 'custom'];
@@ -11,7 +12,6 @@ export const PRESETS = {
     id: 'x-audio',
     name: 'X (audio-first)',
     // Video is deliberately cheap: 24 fps, CRF 26, 1.8 Mb/s cap. Audio gets 320k.
-    description: '720p at 24 fps, 1.8 Mb/s cap, 320k AAC, 16 kHz lowpass. Best for vocal covers.',
     audioOnly: false,
     maxW: 1280, maxH: 720, fpsCap: 24, crf: 26, maxrate: 1800, bufsize: 3600,
     audioBitrate: 320, ...LOUDNESS, lowpass: true, lowpassHz: 16000,
@@ -20,7 +20,6 @@ export const PRESETS = {
   'x-balanced': {
     id: 'x-balanced',
     name: 'X (balanced)',
-    description: '1080p, 6 Mb/s cap, 256k AAC. Sharper picture, bigger file.',
     audioOnly: false,
     maxW: 1920, maxH: 1080, fpsCap: 30, crf: 23, maxrate: 6000, bufsize: 12000,
     audioBitrate: 256, ...LOUDNESS, lowpass: false, lowpassHz: 16000,
@@ -29,7 +28,6 @@ export const PRESETS = {
   tiktok: {
     id: 'tiktok',
     name: 'TikTok / Shorts',
-    description: '1080x1920 vertical, 8 Mb/s cap, 256k AAC.',
     audioOnly: false,
     maxW: 1080, maxH: 1920, fpsCap: 30, crf: 23, maxrate: 8000, bufsize: 16000,
     audioBitrate: 256, ...LOUDNESS, lowpass: false, lowpassHz: 16000,
@@ -38,7 +36,6 @@ export const PRESETS = {
   'audio-only': {
     id: 'audio-only',
     name: 'Audio only (M4A)',
-    description: 'Drops the video. Normalized 256k AAC in an .m4a container.',
     audioOnly: true,
     maxW: null, maxH: null, fpsCap: null, crf: null, maxrate: null, bufsize: null,
     audioBitrate: 256, ...LOUDNESS, lowpass: false, lowpassHz: 16000,
@@ -47,7 +44,6 @@ export const PRESETS = {
   custom: {
     id: 'custom',
     name: 'Custom',
-    description: 'Every knob exposed. Starts from whatever you last selected.',
     audioOnly: false,
     // Custom keeps the current values; these are only the initial defaults (same as x-audio).
     maxW: 1280, maxH: 720, fpsCap: 24, crf: 26, maxrate: 1800, bufsize: 3600,

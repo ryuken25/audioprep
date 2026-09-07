@@ -2,18 +2,20 @@
 // Nothing in here touches the DOM; `runPipeline` only needs a runner object with
 // exec / readFile / deleteFile.
 
-import { fitDimensions } from './scale.js';
+import { fitDimensions, coverBox } from './scale.js';
 import { parseProbe } from './probe.js';
 import { parseLoudnormJSON, measurementsUsable, parseEbur128Summary } from './loudnorm.js';
 
+// Stage identifiers, not labels: the UI looks them up in STR[lang].stages so the
+// progress card can switch language mid-run.
 export const STAGES = {
-  LOAD: 'Loading FFmpeg',
-  READ: 'Reading file',
-  PROBE: 'Probing',
-  MEASURE: 'Measuring loudness (pass 1)',
-  FRAME: 'Extracting still frame',
-  ENCODE: 'Encoding (pass 2)',
-  CHECK: 'Checking output',
+  LOAD: 'load',
+  READ: 'read',
+  PROBE: 'probe',
+  MEASURE: 'measure',
+  FRAME: 'frame',
+  ENCODE: 'encode',
+  CHECK: 'check',
 };
 
 export const X_LIMITS = {
@@ -89,16 +91,52 @@ export function buildFrameArgs(input, time, output = 'frame.png') {
 }
 
 /**
- * Main encode command.
- * @param {{input:string, output:string, probe:object, settings:object, measured?:object, frame?:string}} o
+ * -vf chain for a still picture: fit it inside the preset box without stretching,
+ * then pad the rest of the frame black so the output is exactly the box size.
+ * Also used, harmlessly, for the generated black frame (which is already box-sized).
  */
-export function buildEncodeArgs({ input, output, probe, settings: s, measured = null, frame = 'frame.png' }) {
+export function buildCoverFilter(box) {
+  return `scale=${box.w}:${box.h}:force_original_aspect_ratio=decrease`
+    + `,pad=${box.w}:${box.h}:(ow-iw)/2:(oh-ih)/2:color=black`;
+}
+
+/** True when the input has no video and the preset still asks for one: picture + audio. */
+export function isPictureMode(probe, s) {
+  return !s.audioOnly && !probe.video && !!coverBox(s.maxW, s.maxH);
+}
+
+/**
+ * Main encode command.
+ * @param {{input:string, output:string, probe:object, settings:object, measured?:object,
+ *   frame?:string, cover?:string|null}} o `cover` is the picture already written to the
+ *   ffmpeg FS; null means a generated black frame.
+ */
+export function buildEncodeArgs({ input, output, probe, settings: s, measured = null, frame = 'frame.png', cover = null, coverW = 0, coverH = 0 }) {
   const af = buildAF2(s, measured);
   const audio = buildAudioCodecArgs(s);
   const tail = ['-af', af, ...audio, '-movflags', '+faststart', output];
 
-  if (s.audioOnly || !probe.video) {
+  if (s.audioOnly || (!probe.video && !isPictureMode(probe, s))) {
     return ['-hide_banner', '-nostdin', '-i', input, '-vn', '-map', '0:a:0', ...tail];
+  }
+
+  // Audio input, video output: one still picture (or black) stretched over the track.
+  if (!probe.video) {
+    const box = coverBox(s.maxW, s.maxH, coverW, coverH);
+    // -shortest ends at the audio, but a looped image can overrun it, so cap with -t too.
+    const tArgs = Number.isFinite(probe.duration) ? ['-t', num(probe.duration, 3)] : [];
+    const source = cover
+      ? ['-framerate', '1', '-loop', '1', '-i', cover]
+      : ['-f', 'lavfi', '-i', `color=c=black:s=${box.w}x${box.h}:r=1`];
+    return [
+      '-hide_banner', '-nostdin',
+      ...source,
+      '-i', input,
+      '-map', '0:v', '-map', '1:a', '-shortest', ...tArgs,
+      '-vf', buildCoverFilter(box),
+      ...buildVideoCodecArgs(s, { still: true }),
+      ...tail,
+    ];
   }
 
   const { vf } = buildVideoFilter(probe, s);
@@ -130,26 +168,41 @@ export function buildCheckArgs(output) {
   return ['-hide_banner', '-nostdin', '-i', output, '-vn', '-af', 'ebur128=peak=true', '-f', 'null', '-'];
 }
 
-/** Human-readable warnings for an encoded (or planned) output. */
+/**
+ * Warnings for an encoded (or planned) output, as data rather than sentences: the UI
+ * localizes the duration one through STR.fn.warnDur and renders the rest with
+ * describeWarning below.
+ */
 export function computeWarnings({ duration, sizeBytes, video }) {
   const out = [];
   if (Number.isFinite(duration) && duration > X_LIMITS.maxDuration) {
-    out.push(`Duration is ${duration.toFixed(1)} s. X allows up to ${X_LIMITS.maxDuration} s for most accounts.`);
+    out.push({ code: 'duration', duration, max: X_LIMITS.maxDuration });
   }
   if (Number.isFinite(sizeBytes) && sizeBytes > X_LIMITS.maxBytes) {
-    out.push(`File is ${(sizeBytes / 1048576).toFixed(0)} MB. X rejects uploads over 512 MB.`);
+    out.push({ code: 'size', mb: sizeBytes / 1048576, maxMb: X_LIMITS.maxBytes / 1048576 });
   }
   if (video && Number.isFinite(video.width) && Number.isFinite(video.height)) {
     const long = Math.max(video.width, video.height);
     const short = Math.min(video.width, video.height);
     if (long > X_LIMITS.maxLong || short > X_LIMITS.maxShort) {
-      out.push(`Resolution ${video.width}x${video.height} exceeds X's 1920x1200 limit.`);
+      out.push({ code: 'resolution', width: video.width, height: video.height, maxLong: X_LIMITS.maxLong, maxShort: X_LIMITS.maxShort });
     }
   }
   if (video && Number.isFinite(video.fps) && video.fps > X_LIMITS.maxFps) {
-    out.push(`Frame rate ${video.fps} fps is above 60. X may reject or downsample it.`);
+    out.push({ code: 'fps', fps: video.fps, max: X_LIMITS.maxFps });
   }
   return out;
+}
+
+/** English sentence for a warning. The string table only covers `duration` (fn.warnDur). */
+export function describeWarning(w) {
+  switch (w.code) {
+    case 'duration': return `Duration is ${w.duration.toFixed(1)} s. X allows up to ${w.max} s for most accounts.`;
+    case 'size': return `File is ${w.mb.toFixed(0)} MB. X rejects uploads over ${w.maxMb} MB.`;
+    case 'resolution': return `Resolution ${w.width}x${w.height} exceeds X's ${w.maxLong}x${w.maxShort} limit.`;
+    case 'fps': return `Frame rate ${w.fps} fps is above ${w.max}. X may reject or downsample it.`;
+    default: return String(w.code || '');
+  }
 }
 
 const clamp01 = (x) => (Number.isFinite(x) ? Math.min(1, Math.max(0, x)) : 0);
@@ -158,8 +211,11 @@ const clamp01 = (x) => (Number.isFinite(x) ? Math.min(1, Math.max(0, x)) : 0);
  * Run the whole pipeline on a file that is already in the ffmpeg FS.
  * `runner.exec(args, {duration, onProgress})` must resolve to `{code, log, ms}`.
  */
-export async function runPipeline({ runner, inputName, probe, settings, onStage = () => {}, onProgress = () => {} }) {
-  const audioOnly = settings.audioOnly || !probe.video;
+export async function runPipeline({ runner, inputName, probe, settings, cover = null, onStage = () => {}, onProgress = () => {} }) {
+  // An input without a video stream is only forced to audio-only when the preset has no
+  // video box; otherwise it becomes an MP4 with a still picture.
+  const picture = isPictureMode(probe, settings);
+  const audioOnly = !!settings.audioOnly || (!probe.video && !picture);
   const s = { ...settings, audioOnly };
   const outputName = audioOnly ? 'out.m4a' : 'out.mp4';
   const duration = Number.isFinite(probe.duration) ? probe.duration : null;
@@ -176,9 +232,16 @@ export async function runPipeline({ runner, inputName, probe, settings, onStage 
   if (!measured) throw new Error('Could not find the loudnorm measurement block in the ffmpeg log.');
   const linear = measurementsUsable(measured);
 
-  // Optional still frame for static video mode.
+  // The cover picture lives in the ffmpeg FS only for the length of the encode.
+  let coverName = null;
+  if (picture && cover && cover.data && cover.name) {
+    await runner.writeFile(cover.name, cover.data);
+    coverName = cover.name;
+  }
+
+  // Optional still frame for static video mode (video inputs only).
   let frame = null;
-  if (!audioOnly && s.staticVideo) {
+  if (!audioOnly && !picture && s.staticVideo) {
     onStage(STAGES.FRAME);
     progress(0);
     const maxT = duration ? Math.max(0, duration - 0.05) : Infinity;
@@ -192,7 +255,11 @@ export async function runPipeline({ runner, inputName, probe, settings, onStage 
   // Pass 2: encode.
   onStage(STAGES.ENCODE);
   progress(0);
-  const encodeArgs = buildEncodeArgs({ input: inputName, output: outputName, probe, settings: s, measured, frame: frame || 'frame.png' });
+  const encodeArgs = buildEncodeArgs({
+    input: inputName, output: outputName, probe, settings: s, measured,
+    frame: frame || 'frame.png', cover: coverName,
+    coverW: cover?.width || 0, coverH: cover?.height || 0,
+  });
   const r2 = await runner.exec(encodeArgs, { duration, onProgress: progress });
   timings.encode = r2.ms;
   if (r2.code !== 0) throw new Error(`Encoding failed (ffmpeg exit code ${r2.code}). See the log.`);
@@ -213,8 +280,9 @@ export async function runPipeline({ runner, inputName, probe, settings, onStage 
   // Free wasm memory. The input stays so the user can re-run with another preset.
   await runner.deleteFile(outputName).catch(() => {});
   if (frame) await runner.deleteFile(frame).catch(() => {});
+  if (coverName) await runner.deleteFile(coverName).catch(() => {});
 
   const warnings = computeWarnings({ duration: after.duration ?? duration, sizeBytes: data.byteLength, video: after.video });
 
-  return { outputName, audioOnly, data, measured, linear, after, ebur, warnings, timings };
+  return { outputName, audioOnly, picture, data, measured, linear, after, ebur, warnings, timings };
 }

@@ -4,33 +4,85 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark light" />
-    <meta name="description" content="Audio-first video encoder for X / TikTok. Loudness-normalized AAC, clean H.264. Runs 100% in your browser, nothing is uploaded." />
+    <meta name="description" content="So your covers don't get crushed on X / TikTok. Runs 100% in your browser." />
     <title>Kenshi AudioPrep</title>
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Kenshi AudioPrep" />
+    <meta property="og:title" content="Kenshi AudioPrep" />
+    <meta property="og:description" content="So your covers don't get crushed on X / TikTok. Runs 100% in your browser." />
+    <meta property="og:image" content="/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Kenshi AudioPrep" />
+    <meta name="twitter:description" content="So your covers don't get crushed on X / TikTok. Runs 100% in your browser." />
+    <meta name="twitter:image" content="/og-image.png" />
+
     <script>
-      // Apply the saved theme before first paint so there is no flash.
-      try {
-        var t = localStorage.getItem('kxc.theme');
-        document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark';
-      } catch (e) {
-        document.documentElement.dataset.theme = 'dark';
-      }
+      // Restore theme, skin and language before first paint so nothing flashes.
+      (function () {
+        var d = document.documentElement;
+        var get = function (key) {
+          try { return localStorage.getItem(key); } catch (e) { return null; }
+        };
+        d.dataset.theme = get('kxc.theme') === 'light' ? 'light' : 'dark';
+        d.dataset.skin = get('kxc.skin') === 'studio' ? 'studio' : 'vrchat';
+
+        var world = get('kxc.world');
+        d.dataset.world = ['fanart', 'chalkboard', 'shrine'].indexOf(world) >= 0 ? world : 'fanart';
+
+        var lang = get('kxc.lang');
+        if (['en', 'id', 'jp'].indexOf(lang) < 0) {
+          var nav = String(navigator.language || 'en').toLowerCase();
+          lang = nav.indexOf('id') === 0 || nav.indexOf('in-') === 0 ? 'id'
+            : (nav.indexOf('ja') === 0 ? 'jp' : 'en');
+        }
+        d.dataset.lang = lang;
+        d.lang = lang === 'jp' ? 'ja' : lang;
+      })();
     </script>
   </head>
   <body>
+    <!-- The world picture. Fixed to the viewport, so opening Advanced or a long result
+         never moves or rescales it. Under 560px it becomes a band at the top instead. -->
+    <div class="world" aria-hidden="true">
+      <img id="world-img" class="world-img" alt="" decoding="async" />
+      <div class="world-overlay"></div>
+    </div>
+    <script>
+      // Point the picture at the world the pre-paint script picked. Inline (not in the
+      // deferred module) so the background is on screen with the first frame.
+      (function () {
+        var d = document.documentElement;
+        var img = document.getElementById('world-img');
+        if (d.dataset.skin === 'vrchat') img.src = '%BASE_URL%world/' + d.dataset.world + '.jpg';
+      })();
+    </script>
+
     <div class="page">
       <header class="topbar">
         <div class="brand">
           <a class="brand-mark" href="https://x.com/kenshi2k_" target="_blank" rel="noopener" title="kenshi2K on X"><img src="/avatar.png" alt="kenshi2K avatar" width="44" height="44" /></a>
           <div>
             <h1>Kenshi AudioPrep</h1>
-            <p class="subtitle">Audio-first encoder for X / TikTok. Runs 100% in your browser.</p>
+            <p class="subtitle" data-i18n="subtitle">So your covers don't get crushed on X / TikTok. Runs 100% in your browser.</p>
           </div>
         </div>
         <div class="topbar-actions">
-          <a class="link-desktop" href="https://github.com/ryuken25/audioprep/releases/latest" target="_blank" rel="noopener">Desktop app</a>
-          <button id="theme-toggle" class="icon-btn" type="button" aria-label="Toggle dark / light theme" title="Toggle theme">
+          <a class="link-desktop" href="https://github.com/ryuken25/audioprep/releases/latest" target="_blank" rel="noopener" data-i18n="desktop">Desktop app</a>
+          <button id="lang-toggle" class="pill-btn" type="button" data-i18n-label="langToggle" data-i18n-title="langToggle">
+            <span id="lang-code" class="mono">EN</span>
+          </button>
+          <button id="skin-toggle" class="pill-btn" type="button" aria-label="Background" title="Background">
+            <svg class="icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+              <circle cx="8.5" cy="9.5" r="1.6"></circle>
+              <path d="M21 15.5 16 11l-9 9"></path>
+            </svg>
+            <span id="skin-name" class="mono">fanart</span>
+          </button>
+          <button id="theme-toggle" class="icon-btn" type="button" data-i18n-label="themeToggle" data-i18n-title="themeToggle">
             <svg class="icon icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="4"></circle>
               <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
@@ -43,13 +95,13 @@
       </header>
 
       <main>
-        <section id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Drop a video here or click to browse">
+        <section id="dropzone" class="dropzone" tabindex="0" role="button" data-i18n-label="dropTitle">
           <svg class="drop-icon" viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M12 16V4M7 9l5-5 5 5"></path>
             <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path>
           </svg>
-          <p class="drop-title">Drop a video here or click to browse</p>
-          <p class="drop-hint">MP4, MOV, MKV, WebM, AVI, M4A, WAV or MP3. Nothing leaves your device.</p>
+          <p class="drop-title" data-i18n="dropTitle">Drop your cover here, or click to browse</p>
+          <p class="drop-hint" data-i18n="dropHint">MP4, MOV, MKV, WebM, AVI, M4A, WAV or MP3. Nothing leaves your device.</p>
           <input id="file-input" type="file" accept=".mp4,.mov,.mkv,.webm,.avi,.m4a,.wav,.mp3,video/*,audio/*" hidden />
         </section>
 
@@ -57,96 +109,122 @@
 
         <section id="file-info" class="card" hidden>
           <div class="card-head">
-            <h2>Input</h2>
+            <h2 data-i18n="input">Input</h2>
             <span id="file-name" class="file-name mono"></span>
           </div>
           <dl id="file-info-grid" class="info-grid"></dl>
         </section>
 
+        <!-- Audio input, video preset: one still picture for the whole track. -->
+        <section id="cover-card" class="card" hidden>
+          <div class="card-head">
+            <h2 data-i18n="picture">Picture</h2>
+            <span class="muted small" data-i18n="pictureOptional">Optional</span>
+          </div>
+          <div class="cover-row">
+            <div id="cover-drop" class="cover-drop" tabindex="0" role="button" data-i18n-label="choosePicture">
+              <div id="cover-preview" class="cover-preview"></div>
+              <span id="cover-empty-label" class="cover-empty mono" data-i18n="blackFrame">black frame</span>
+            </div>
+            <div class="cover-copy">
+              <p id="cover-line" class="small muted"></p>
+              <p class="cover-hint small" data-i18n="pictureHint">JPG, PNG or WebP. Scaled to fit the preset box, never stretched. Shown for the whole track.</p>
+              <div class="cover-actions">
+                <button id="cover-btn" class="btn btn-small" type="button" data-i18n="choosePicture">Choose a picture</button>
+                <button id="cover-clear" class="btn btn-ghost btn-small" type="button" data-i18n="remove" hidden>Remove</button>
+              </div>
+            </div>
+          </div>
+          <input id="cover-input" type="file" accept="image/jpeg,image/png,image/webp" hidden />
+        </section>
+
         <section class="card">
           <div class="card-head">
-            <h2>Preset</h2>
-            <span id="preset-plan" class="muted small"></span>
+            <h2 data-i18n="preset">Preset</h2>
+            <span id="preset-plan" class="muted small mono"></span>
           </div>
-          <div id="preset-list" class="preset-list" role="radiogroup" aria-label="Preset"></div>
+          <div id="preset-list" class="preset-list" role="radiogroup" data-i18n-label="preset"></div>
 
           <details id="advanced" class="advanced">
-            <summary>Advanced</summary>
+            <summary data-i18n="advanced">Advanced</summary>
             <div class="adv-grid">
               <div class="adv-group">
-                <h3>Loudness</h3>
-                <label>Target <span class="unit">LUFS</span><input type="number" data-key="I" step="0.5" min="-30" max="-5"></label>
-                <label>True peak <span class="unit">dBTP</span><input type="number" data-key="TP" step="0.1" min="-6" max="0"></label>
-                <label>Loudness range <span class="unit">LU</span><input type="number" data-key="LRA" step="1" min="1" max="25"></label>
+                <h3 data-i18n="loudness">Loudness</h3>
+                <label><span class="adv-label" data-i18n="target">Target</span><input type="number" data-key="I" step="0.5" min="-30" max="-5"><span class="unit mono">LUFS</span></label>
+                <label><span class="adv-label" data-i18n="truePeak">True peak</span><input type="number" data-key="TP" step="0.1" min="-6" max="0"><span class="unit mono">dBTP</span></label>
+                <label><span class="adv-label" data-i18n="lra">Loudness range</span><input type="number" data-key="LRA" step="1" min="1" max="25"><span class="unit mono">LU</span></label>
               </div>
               <div class="adv-group">
-                <h3>Audio</h3>
-                <label>Bitrate <span class="unit">kb/s</span><input type="number" data-key="audioBitrate" step="32" min="64" max="320"></label>
-                <label class="check"><input type="checkbox" data-key="lowpass"><span>Lowpass filter</span></label>
-                <label>Cutoff <span class="unit">Hz</span><input type="number" data-key="lowpassHz" step="500" min="4000" max="22000"></label>
-                <label class="check"><input type="checkbox" data-key="audioOnly"><span>Audio only (drop video, output .m4a)</span></label>
+                <h3 data-i18n="audioGroup">Audio</h3>
+                <label><span class="adv-label" data-i18n="bitrate">Bitrate</span><input type="number" data-key="audioBitrate" step="32" min="64" max="320"><span class="unit mono">kb/s</span></label>
+                <label class="check"><input type="checkbox" data-key="lowpass"><span data-i18n="lowpass">Lowpass filter</span></label>
+                <label><span class="adv-label" data-i18n="cutoff">Cutoff</span><input type="number" data-key="lowpassHz" step="500" min="4000" max="22000"><span class="unit mono">Hz</span></label>
+                <label class="check"><input type="checkbox" data-key="audioOnly"><span data-i18n="audioOnly">Audio only (drop video, output .m4a)</span></label>
               </div>
               <div class="adv-group" data-video>
-                <h3>Video</h3>
-                <label>CRF<input type="number" data-key="crf" step="1" min="10" max="40"></label>
-                <label>Max rate <span class="unit">kb/s</span><input type="number" data-key="maxrate" step="250" min="250" max="50000"></label>
-                <label>FPS cap<input type="number" data-key="fpsCap" step="1" min="1" max="120"></label>
-                <label>Box width <span class="unit">px</span><input type="number" data-key="maxW" step="2" min="2" max="4096"></label>
-                <label>Box height <span class="unit">px</span><input type="number" data-key="maxH" step="2" min="2" max="4096"></label>
+                <h3 data-i18n="videoGroup">Video</h3>
+                <label><span class="adv-label" data-i18n="crf">CRF</span><input type="number" data-key="crf" step="1" min="10" max="40"><span class="unit mono"></span></label>
+                <label><span class="adv-label" data-i18n="maxrate">Max rate</span><input type="number" data-key="maxrate" step="250" min="250" max="50000"><span class="unit mono">kb/s</span></label>
+                <label><span class="adv-label" data-i18n="fpsCap">FPS cap</span><input type="number" data-key="fpsCap" step="1" min="1" max="120"><span class="unit mono">fps</span></label>
+                <label><span class="adv-label" data-i18n="boxW">Box width</span><input type="number" data-key="maxW" step="2" min="2" max="4096"><span class="unit mono">px</span></label>
+                <label><span class="adv-label" data-i18n="boxH">Box height</span><input type="number" data-key="maxH" step="2" min="2" max="4096"><span class="unit mono">px</span></label>
               </div>
               <div class="adv-group" data-video>
-                <h3>Static video</h3>
-                <label class="check"><input type="checkbox" data-key="staticVideo"><span>Single frame + audio (tiny file)</span></label>
-                <label>Frame at <span class="unit">s</span><input type="number" data-key="staticTime" step="0.5" min="0"></label>
+                <h3 data-i18n="staticGroup">Static video</h3>
+                <label class="check"><input type="checkbox" data-key="staticVideo"><span data-i18n="staticVideo">Single frame + audio (tiny file)</span></label>
+                <label><span class="adv-label" data-i18n="frameAt">Frame at</span><input type="number" data-key="staticTime" step="0.5" min="0"><span class="unit mono">s</span></label>
               </div>
             </div>
           </details>
         </section>
 
         <div class="actions">
-          <button id="process-btn" class="btn btn-primary btn-lg" type="button" disabled>Process</button>
-          <p id="status" class="status" role="status" aria-live="polite">Loading FFmpeg core…</p>
+          <button id="process-btn" class="btn btn-primary btn-lg" type="button" disabled>
+            <span class="spinner" aria-hidden="true"></span>
+            <span id="process-label" data-i18n="process">Process</span>
+          </button>
+          <p id="status" class="status" role="status" aria-live="polite"></p>
         </div>
 
         <section id="progress" class="card progress-card" hidden>
           <div class="progress-head">
-            <span id="stage-label">Probing</span>
+            <span id="stage-label"></span>
             <span id="progress-pct" class="mono">0%</span>
           </div>
           <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-bar">
             <div id="progress-fill" class="progress-fill"></div>
           </div>
           <div class="progress-foot">
-            <span id="progress-eta" class="muted small"></span>
-            <button id="cancel-btn" class="btn btn-ghost" type="button">Cancel</button>
+            <span id="progress-eta" class="muted small mono"></span>
+            <button id="cancel-btn" class="btn btn-ghost" type="button" data-i18n="cancel">Cancel</button>
           </div>
         </section>
 
         <section id="result" class="card" hidden>
           <div class="card-head">
-            <h2>Result</h2>
-            <span id="result-summary" class="muted small"></span>
+            <h2 data-i18n="result">Result</h2>
+            <span id="result-summary" class="muted small mono"></span>
           </div>
           <ul id="warnings" class="warnings" hidden></ul>
           <div class="table-wrap">
             <table id="compare" class="compare">
               <thead>
-                <tr><th scope="col"></th><th scope="col">Input</th><th scope="col">Output</th></tr>
+                <tr><th scope="col"></th><th scope="col" data-i18n="cmpInput">Input</th><th scope="col" class="col-out" data-i18n="cmpOutput">Output</th></tr>
               </thead>
               <tbody></tbody>
             </table>
           </div>
           <div class="result-actions">
             <a id="download-btn" class="btn btn-primary" href="#" download>Download</a>
-            <button id="another-btn" class="btn btn-ghost" type="button">Process another</button>
+            <button id="another-btn" class="btn btn-ghost" type="button" data-i18n="another">Process another</button>
           </div>
         </section>
 
         <details id="log-details" class="card log-card">
-          <summary>Log <span id="log-count" class="muted small"></span></summary>
+          <summary><span data-i18n="log">Log</span> <span id="log-count" class="muted small mono"></span></summary>
           <div class="log-toolbar">
-            <span class="muted small">Every ffmpeg command and its output.</span>
-            <button id="log-clear" class="btn btn-tiny" type="button">Clear</button>
+            <span class="muted small" data-i18n="logHint">Every ffmpeg command and its output.</span>
+            <button id="log-clear" class="btn btn-tiny" type="button" data-i18n="clear">Clear</button>
           </div>
           <pre id="log" class="log" aria-live="off"></pre>
         </details>
@@ -154,7 +232,8 @@
 
       <footer class="footer">
         <p id="core-status" class="core-status"><span class="dot" data-state="loading"></span><span id="core-status-text">FFmpeg core: loading…</span></p>
-        <p class="muted small">X will still re-encode your video. This maximizes input quality, it does not bypass compression.</p>
+        <p class="muted small" data-i18n="honest">X will still re-encode your video. This just hands it the cleanest possible input; it does not skip the compression.</p>
+        <p id="art-credit" class="credit mono">Art by @nkcllg · background from kenshi2K's VRChat captures</p>
       </footer>
     </div>
     <script type="module" src="/src/main.js"></script>
