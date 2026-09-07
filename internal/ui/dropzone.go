@@ -61,8 +61,8 @@ func (d *DropZone) applyBorder() {
 		return
 	}
 	if d.hovering {
-		d.border.StrokeColor = accent
-		d.border.FillColor = color.NRGBA{R: 0xf5, G: 0x9e, B: 0x0b, A: 0x18}
+		d.border.StrokeColor = mauve
+		d.border.FillColor = color.NRGBA{R: 0x8a, G: 0x61, B: 0x68, A: 0x2e}
 	} else {
 		d.border.StrokeColor = theme.Color(theme.ColorNameInputBorder)
 		d.border.FillColor = color.Transparent

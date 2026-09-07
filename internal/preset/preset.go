@@ -19,10 +19,14 @@ type Preset struct {
 	// Zero means "no video stream" (audio-only output).
 	MaxWidth  int
 	MaxHeight int
-	FPSCap    int    // frames per second ceiling; input above this gets an fps filter
-	CRF       int    // libx264 constant rate factor (lower = better/larger)
-	MaxRate   string // ffmpeg rate string, e.g. "2500k"
-	BufSize   string // VBV buffer, normally 2x MaxRate
+	// Vertical marks a preset whose box is meant to be portrait. The box above
+	// is always written landscape and flipped to match the input; when there is
+	// no input video to match (an audio file plus a picture) this decides.
+	Vertical bool
+	FPSCap   int    // frames per second ceiling; input above this gets an fps filter
+	CRF      int    // libx264 constant rate factor (lower = better/larger)
+	MaxRate  string // ffmpeg rate string, e.g. "2500k"
+	BufSize  string // VBV buffer, normally 2x MaxRate
 
 	// Audio.
 	AudioBitrateKbps int     // AAC target bitrate
@@ -114,6 +118,7 @@ var All = []Preset{
 		Description:      "Vertical 1080x1920, generous video budget, same loudness targets.",
 		MaxWidth:         1920,
 		MaxHeight:        1080,
+		Vertical:         true,
 		FPSCap:           30,
 		CRF:              23,
 		MaxRate:          "8000k",
@@ -159,6 +164,16 @@ var All = []Preset{
 		LowpassHz:        defaultLowpassHz,
 		OutputExt:        ".mp4",
 	},
+}
+
+// Box returns the preset's bounding box in the orientation it is meant to be
+// used in. Callers that have an input video should use FitDimensions instead;
+// this is for the picture-only case, where nothing else decides the shape.
+func (p Preset) Box() (w, h int) {
+	if p.Vertical {
+		return p.MaxHeight, p.MaxWidth
+	}
+	return p.MaxWidth, p.MaxHeight
 }
 
 // Default returns the preset that should be selected on first launch.

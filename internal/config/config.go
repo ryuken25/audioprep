@@ -15,6 +15,7 @@ type Config struct {
 	LastPreset string `json:"last_preset,omitempty"`
 	OutputDir  string `json:"output_dir,omitempty"`
 	Theme      string `json:"theme,omitempty"` // "dark" or "light"
+	Skin       string `json:"skin,omitempty"`  // "vrchat" (default) or "studio"
 	// Advanced overrides the user last used with the Custom preset. Stored
 	// as a free-form map so adding a knob never breaks old config files.
 	Custom map[string]any `json:"custom,omitempty"`

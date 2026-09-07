@@ -235,3 +235,115 @@ func TestAllPresetsProduceArgs(t *testing.T) {
 		}
 	}
 }
+
+// --- cover mode: an audio file becomes a video with a still picture ---------
+
+// audioProbe is a 3 min m4a: no video stream, 48 kHz stereo.
+func audioProbe() *ffmpeg.Probe {
+	return &ffmpeg.Probe{
+		Path:     "cover.m4a",
+		Duration: 180,
+		Audio:    &ffmpeg.AudioStream{Codec: "aac", SampleRate: 48000, Channels: 2},
+	}
+}
+
+func TestIsCoverMode(t *testing.T) {
+	x := mustPreset(t, preset.IDXAudioFirst)
+	ao := mustPreset(t, preset.IDAudioOnly)
+
+	if !(Request{Probe: audioProbe(), Preset: x}).IsCoverMode() {
+		t.Error("audio input with a video preset should be cover mode")
+	}
+	if (Request{Probe: audioProbe(), Preset: ao}).IsCoverMode() {
+		t.Error("the audio-only preset is never cover mode")
+	}
+	if (Request{Probe: phoneProbe(), Preset: x}).IsCoverMode() {
+		t.Error("an input with video is never cover mode")
+	}
+}
+
+func TestCoverBox(t *testing.T) {
+	x := mustPreset(t, preset.IDXAudioFirst) // 1280x720 landscape
+	tt := mustPreset(t, preset.IDTikTok)     // vertical intent: 1080x1920
+	cases := []struct {
+		name         string
+		p            preset.Preset
+		cw, ch       int
+		wantW, wantH int
+	}{
+		{"no picture, landscape preset", x, 0, 0, 1280, 720},
+		{"no picture, vertical preset", tt, 0, 0, 1080, 1920},
+		{"portrait art flips the 720p box", x, 1000, 1200, 720, 1280},
+		{"landscape art keeps it landscape", x, 1920, 1080, 1280, 720},
+		{"square art keeps the preset's orientation", x, 1000, 1000, 1280, 720},
+		{"square art in a vertical preset stays vertical", tt, 1000, 1000, 1080, 1920},
+		{"a small picture still gets the full box", x, 400, 300, 1280, 720},
+		{"portrait art in the tiktok box", tt, 675, 1200, 1080, 1920},
+		{"landscape art flips the tiktok box", tt, 1920, 1080, 1920, 1080},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			r := Request{Probe: audioProbe(), Preset: tc.p, CoverWidth: tc.cw, CoverHeight: tc.ch}
+			w, h := r.CoverBox()
+			if w != tc.wantW || h != tc.wantH {
+				t.Errorf("CoverBox() = %dx%d, want %dx%d", w, h, tc.wantW, tc.wantH)
+			}
+			if w%2 != 0 || h%2 != 0 {
+				t.Errorf("odd dimension: %dx%d", w, h)
+			}
+		})
+	}
+}
+
+func TestEncodeArgs_CoverWithPicture_Golden(t *testing.T) {
+	req := Request{
+		InputPath: "cover.m4a", Probe: audioProbe(), Preset: mustPreset(t, preset.IDXAudioFirst),
+		CoverPath: "art.jpg", CoverWidth: 1000, CoverHeight: 1200,
+	}
+	got := join(EncodeArgs(req, measured, "", "out.mp4"))
+	want := strings.Join([]string{
+		"-framerate 1 -loop 1 -i art.jpg -i cover.m4a -map 0:v:0 -map 1:a:0 -shortest -t 180",
+		"-c:v libx264 -profile:v high -level 4.1 -pix_fmt yuv420p -crf 26 -maxrate 1800k -bufsize 3600k",
+		"-tune stillimage -r 1",
+		"-vf scale=720:1280:force_original_aspect_ratio=decrease,pad=720:1280:(ow-iw)/2:(oh-ih)/2:color=black",
+		"-af lowpass=f=16000,loudnorm=I=-14:TP=-1:LRA=11:measured_I=-21.81:measured_TP=-17.69:measured_LRA=0.1:measured_thresh=-31.81:offset=0.01:linear=true:print_format=summary,aresample=48000",
+		"-c:a aac -b:a 320k -ar 48000 -ac 2",
+		"-movflags +faststart out.mp4",
+	}, " ")
+	if got != want {
+		t.Errorf("EncodeArgs cover+picture\n got: %s\nwant: %s", got, want)
+	}
+}
+
+func TestEncodeArgs_CoverBlackFrame_Golden(t *testing.T) {
+	req := Request{InputPath: "cover.m4a", Probe: audioProbe(), Preset: mustPreset(t, preset.IDXAudioFirst)}
+	got := join(EncodeArgs(req, measured, "", "out.mp4"))
+	want := strings.Join([]string{
+		"-f lavfi -i color=c=black:s=1280x720:r=1 -i cover.m4a -map 0:v:0 -map 1:a:0 -shortest -t 180",
+		"-c:v libx264 -profile:v high -level 4.1 -pix_fmt yuv420p -crf 26 -maxrate 1800k -bufsize 3600k",
+		"-tune stillimage -r 1",
+		"-af lowpass=f=16000,loudnorm=I=-14:TP=-1:LRA=11:measured_I=-21.81:measured_TP=-17.69:measured_LRA=0.1:measured_thresh=-31.81:offset=0.01:linear=true:print_format=summary,aresample=48000",
+		"-c:a aac -b:a 320k -ar 48000 -ac 2",
+		"-movflags +faststart out.mp4",
+	}, " ")
+	if got != want {
+		t.Errorf("EncodeArgs cover+black\n got: %s\nwant: %s", got, want)
+	}
+	if strings.Contains(got, "-vf") {
+		t.Error("a black canvas is already the right size; no scale/pad filter needed")
+	}
+}
+
+func TestEncodeArgs_AudioOnlyPresetIgnoresCover(t *testing.T) {
+	req := Request{
+		InputPath: "cover.m4a", Probe: audioProbe(), Preset: mustPreset(t, preset.IDAudioOnly),
+		CoverPath: "art.jpg", CoverWidth: 1000, CoverHeight: 1200,
+	}
+	got := join(EncodeArgs(req, measured, "", "out.m4a"))
+	if strings.Contains(got, "art.jpg") || strings.Contains(got, "libx264") {
+		t.Errorf("audio-only must ignore the picture entirely: %s", got)
+	}
+	if !strings.Contains(got, "-vn") {
+		t.Errorf("audio-only must drop video: %s", got)
+	}
+}

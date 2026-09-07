@@ -31,6 +31,44 @@ type Request struct {
 	// AudioEncoder is "aac" or "libfdk_aac"; the caller detects which the
 	// ffmpeg build supports. Empty defaults to "aac".
 	AudioEncoder string
+
+	// CoverPath is a still picture to use as the video when the input has no
+	// video stream and the preset is not audio-only. Empty means a black
+	// frame at the preset's box size. Ignored for inputs that have video.
+	CoverPath string
+
+	// CoverWidth/CoverHeight are the picture's own pixel size, used to decide
+	// the output orientation. Zero means "unknown, use the preset's box".
+	CoverWidth, CoverHeight int
+}
+
+// IsCoverMode reports whether this request turns an audio file into a video
+// with a single still picture (or a black frame).
+func (r Request) IsCoverMode() bool {
+	if r.Preset.AudioOnly {
+		return false
+	}
+	return r.Probe != nil && !r.Probe.HasVideo()
+}
+
+// CoverBox returns the output frame for cover mode: the preset's box, turned
+// to match the picture's orientation. The output is always exactly this size.
+// The picture is scaled down to fit inside it and padded with black, so a
+// short cover and a tall one both come out as one predictable frame; that is
+// what the tile in the UI previews (it letterboxes on black too).
+//
+// A picture smaller than the box is not enlarged: the scale filter only
+// decreases, so it simply sits in the middle with wider bars.
+func (r Request) CoverBox() (w, h int) {
+	bw, bh := r.Preset.Box()
+	// Flip the box if the picture disagrees with it. A square picture keeps
+	// the preset's own orientation.
+	if r.CoverWidth > 0 && r.CoverHeight > 0 {
+		if (r.CoverHeight > r.CoverWidth) != (bh > bw) && r.CoverHeight != r.CoverWidth {
+			bw, bh = bh, bw
+		}
+	}
+	return even(bw), even(bh)
 }
 
 // targets pulls the loudnorm numbers out of the preset.
@@ -101,13 +139,33 @@ func EncodeArgs(r Request, stats ffmpeg.LoudnormStats, framePath, outputPath str
 	args := make([]string, 0, 48)
 
 	// ---- inputs -----------------------------------------------------------
-	static := r.StaticVideo && !p.AudioOnly
+	cover := r.IsCoverMode()
+	static := r.StaticVideo && !p.AudioOnly && !cover
 	if static {
 		// Input 0: the still image looped at 1 fps. Input 1: the original,
 		// for its audio. -shortest plus an explicit -t keeps the loop from
 		// running forever if -shortest misbehaves (it has, historically).
 		args = append(args,
 			"-framerate", "1", "-loop", "1", "-i", framePath,
+			"-i", r.InputPath,
+			"-map", "0:v:0", "-map", "1:a:0",
+			"-shortest",
+		)
+		if r.Probe != nil && r.Probe.Duration > 0 {
+			args = append(args, "-t", ftoa(r.Probe.Duration))
+		}
+	} else if cover {
+		// An audio file becomes a video: input 0 is the picture (or a black
+		// canvas), input 1 is the audio. -shortest plus an explicit -t keeps
+		// the looped image from running past the track.
+		cw, ch := r.CoverBox()
+		if r.CoverPath != "" {
+			args = append(args, "-framerate", "1", "-loop", "1", "-i", r.CoverPath)
+		} else {
+			args = append(args, "-f", "lavfi", "-i",
+				fmt.Sprintf("color=c=black:s=%dx%d:r=1", cw, ch))
+		}
+		args = append(args,
 			"-i", r.InputPath,
 			"-map", "0:v:0", "-map", "1:a:0",
 			"-shortest",
@@ -141,14 +199,23 @@ func EncodeArgs(r Request, stats ffmpeg.LoudnormStats, framePath, outputPath str
 		}
 
 		var vf []string
-		if static {
+		if static || cover {
 			// One frame per second; stillimage tuning spends bits on
 			// detail instead of motion it will never see.
 			args = append(args, "-tune", "stillimage", "-r", "1")
 		} else if r.Probe != nil && r.Probe.Video != nil && p.FPSCap > 0 && r.Probe.Video.FPS > float64(p.FPSCap)+0.01 {
 			vf = append(vf, fmt.Sprintf("fps=%d", p.FPSCap))
 		}
-		if r.Probe != nil && r.Probe.Video != nil {
+		if cover {
+			// Fit the picture inside the box without stretching, then pad to
+			// the exact box so the output is one clean size.
+			cw, ch := r.CoverBox()
+			if r.CoverPath != "" {
+				vf = append(vf, fmt.Sprintf(
+					"scale=%d:%d:force_original_aspect_ratio=decrease,pad=%d:%d:(ow-iw)/2:(oh-ih)/2:color=black",
+					cw, ch, cw, ch))
+			}
+		} else if r.Probe != nil && r.Probe.Video != nil {
 			d := FitDimensions(r.Probe.Video.Width, r.Probe.Video.Height, r.Probe.Video.Rotation, p.MaxWidth, p.MaxHeight)
 			if d.Scaled {
 				vf = append(vf, fmt.Sprintf("scale=%d:%d", d.Width, d.Height))

@@ -51,9 +51,8 @@ func Run(ctx context.Context, rn *ffmpeg.Runner, req Request, h Hooks) (*Result,
 	if req.Probe.Audio == nil {
 		return nil, errors.New("the input has no audio stream; nothing to normalise")
 	}
-	if !req.Preset.AudioOnly && !req.Probe.HasVideo() {
-		return nil, errors.New("the input has no video stream; use the Audio only preset")
-	}
+	// An input without video is fine: cover mode turns it into a video with a
+	// still picture (or a black frame). Only an audio-only preset skips that.
 
 	outputPath := OutputPath(req.InputPath, req.OutputDir, req.Preset.ID, req.Preset.OutputExt, FileExists)
 	if err := os.MkdirAll(filepath.Dir(outputPath), 0o755); err != nil {

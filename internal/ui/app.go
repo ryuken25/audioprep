@@ -16,12 +16,14 @@ import (
 	"strings"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 
+	"github.com/ryuken25/audioprep/assets"
 	"github.com/ryuken25/audioprep/internal/config"
 	"github.com/ryuken25/audioprep/internal/ffmpeg"
 	"github.com/ryuken25/audioprep/internal/pipeline"
@@ -51,6 +53,7 @@ type App struct {
 
 	drop       *DropZone
 	info       *InfoCard
+	cover      *CoverCard
 	presetSel  *widget.Select
 	presetDesc *widget.Label
 	adv        *Advanced
@@ -59,7 +62,10 @@ type App struct {
 	result     *ResultPanel
 	logPanel   *LogPanel
 	status     *widget.Label
+	statusDot  *canvas.Circle
 	themeBtn   *widget.Button
+	skinBtn    *widget.Button
+	backdrop   *backdrop
 }
 
 // New builds the window but does not show it. version is baked in by the
@@ -76,7 +82,8 @@ func New(fyneApp fyne.App, version string) *App {
 	a.cfg = cfg
 
 	dark := cfg.Theme != "light"
-	fyneApp.Settings().SetTheme(newTheme(dark))
+	glass := cfg.Skin != "studio" // the VRChat skin is the default
+	fyneApp.Settings().SetTheme(newTheme(dark, glass))
 
 	a.win = fyneApp.NewWindow("Kenshi AudioPrep")
 	a.win.Resize(fyne.NewSize(760, 820))
@@ -104,6 +111,7 @@ func (a *App) Run() {
 func (a *App) buildUI() {
 	a.drop = NewDropZone(a.browse)
 	a.info = NewInfoCard()
+	a.cover = NewCoverCard(a.pickCover, a.onCoverChanged)
 
 	a.presetSel = widget.NewSelect(preset.Names(), a.onPresetSelected)
 	a.presetDesc = widget.NewLabel("")
@@ -136,6 +144,7 @@ func (a *App) buildUI() {
 		title,
 		a.drop,
 		a.info.Widget(),
+		a.cover.Widget(),
 		presetRow,
 		a.adv.Widget(),
 		container.NewGridWithColumns(3, layoutSpacer(), a.processBtn, layoutSpacer()),
@@ -144,7 +153,10 @@ func (a *App) buildUI() {
 		a.logPanel.Widget(),
 	)
 	scroll := container.NewVScroll(container.NewPadded(body))
-	a.win.SetContent(container.NewBorder(nil, statusBar, nil, nil, scroll))
+	// The VRChat skin puts the owner's picture behind everything; the
+	// translucent surfaces in theme.go let it show through.
+	a.backdrop = newBackdrop(scroll, isDark(a.fyneApp.Settings().Theme()), a.cfg.Skin != "studio")
+	a.win.SetContent(container.NewBorder(nil, statusBar, nil, nil, a.backdrop.Widget()))
 }
 
 func layoutSpacer() fyne.CanvasObject { return widget.NewLabel("") }
@@ -335,15 +347,62 @@ func (a *App) loadFile(path string) {
 			a.drop.SetText(filepath.Base(path), "Drop another file to replace it")
 			a.logPanel.Append("probe: " + p.Summary())
 
-			// Audio input with a video preset: switch to Audio only and say so.
-			if !p.HasVideo() && !a.stock.AudioOnly {
-				ao, _ := preset.ByID(preset.IDAudioOnly)
-				a.presetSel.SetSelected(ao.Name)
-				a.presetDesc.SetText("No video stream found, switched to Audio only. " + ao.Description)
-			}
+			// An audio input keeps the chosen video preset: the Picture card
+			// turns it into an MP4 with a still frame. "Audio only" is still
+			// one click away in the preset list.
+			a.updateCoverCard()
 			a.updateProcessEnabled()
 		})
 	}()
+}
+
+// updateCoverCard shows the Picture card exactly when it applies: the loaded
+// input has no video stream and the preset still wants a video.
+func (a *App) updateCoverCard() {
+	if a.probe == nil || a.probe.HasVideo() || a.stock.AudioOnly {
+		a.cover.Hide()
+		return
+	}
+	req := pipeline.Request{Probe: a.probe, Preset: a.current}
+	w, h := req.CoverBox()
+	if a.cover.HasPicture() {
+		cw, ch := a.cover.Size()
+		req.CoverWidth, req.CoverHeight = cw, ch
+		w, h = req.CoverBox()
+	}
+	a.cover.SetBox(w, h)
+	a.cover.Show()
+}
+
+func (a *App) pickCover() {
+	fd := dialog.NewFileOpen(func(rc fyne.URIReadCloser, err error) {
+		if err != nil || rc == nil {
+			return
+		}
+		path := rc.URI().Path()
+		rc.Close()
+		if err := a.cover.Load(path); err != nil {
+			a.showError("That picture could not be used.", err)
+			return
+		}
+		a.onCoverChanged()
+	}, a.win)
+	fd.SetFilter(storage.NewExtensionFileFilter(coverExts))
+	fd.Resize(fyne.NewSize(700, 500))
+	fd.Show()
+}
+
+func (a *App) onCoverChanged() {
+	a.updateCoverCard()
+	a.logPanel.Append("picture: " + coverLogLine(a.cover))
+}
+
+func coverLogLine(c *CoverCard) string {
+	if !c.HasPicture() {
+		return "none (black frame)"
+	}
+	w, h := c.Size()
+	return fmt.Sprintf("%s (%dx%d)", c.Path(), w, h)
 }
 
 // ---------------------------------------------------------------------------
@@ -363,6 +422,7 @@ func (a *App) onPresetSelected(name string) {
 	a.stock = p
 	a.presetDesc.SetText(p.Description)
 	a.adv.Load(a.current)
+	a.updateCoverCard()
 	a.saveConfig()
 	a.updateProcessEnabled()
 }
@@ -432,9 +492,9 @@ func (a *App) process() {
 		OutputDir:    a.adv.OutputDir(),
 		AudioEncoder: a.encoder,
 	}
-	if !req.Preset.AudioOnly && !a.probe.HasVideo() {
-		ao, _ := preset.ByID(preset.IDAudioOnly)
-		req.Preset = ao
+	if req.IsCoverMode() && a.cover.HasPicture() {
+		req.CoverPath = a.cover.Path()
+		req.CoverWidth, req.CoverHeight = a.cover.Size()
 	}
 
 	for _, w := range pipeline.Warnings(a.probe, req.Preset) {
@@ -526,13 +586,62 @@ func (a *App) processAnother() {
 
 func (a *App) toggleTheme() {
 	dark := !isDark(a.fyneApp.Settings().Theme())
-	a.fyneApp.Settings().SetTheme(newTheme(dark))
+	glass := isGlass(a.fyneApp.Settings().Theme())
+	a.fyneApp.Settings().SetTheme(newTheme(dark, glass))
 	if dark {
 		a.cfg.Theme = "dark"
 	} else {
 		a.cfg.Theme = "light"
 	}
+	if a.backdrop != nil {
+		a.backdrop.SetDark(dark)
+	}
 	a.saveConfig()
+}
+
+// toggleSkin flips between the VRChat skin (picture behind frosted panels) and
+// the flat studio look.
+func (a *App) toggleSkin() {
+	dark := isDark(a.fyneApp.Settings().Theme())
+	glass := !isGlass(a.fyneApp.Settings().Theme())
+	a.fyneApp.Settings().SetTheme(newTheme(dark, glass))
+	if glass {
+		a.cfg.Skin = "vrchat"
+	} else {
+		a.cfg.Skin = "studio"
+	}
+	if a.backdrop != nil {
+		a.backdrop.SetOn(glass, dark)
+	}
+	a.saveConfig()
+}
+
+// buildTitle is the header block: the avatar, the product name and one line of
+// what the tool does.
+func (a *App) buildTitle() fyne.CanvasObject {
+	av := canvas.NewImageFromResource(fyne.NewStaticResource("icon.png", assets.Icon))
+	av.FillMode = canvas.ImageFillContain
+	av.SetMinSize(fyne.NewSize(48, 48))
+
+	name := canvas.NewText("Kenshi AudioPrep", theme.Color(theme.ColorNameForeground))
+	name.TextSize = theme.Size(theme.SizeNameHeadingText)
+	name.TextStyle = fyne.TextStyle{Bold: true}
+
+	sub := widget.NewLabel("Audio-first encoder for X and TikTok. Loudness-normalised high-bitrate AAC, cheap H.264, ready to upload.")
+	sub.Wrapping = fyne.TextWrapWord
+	sub.Importance = widget.LowImportance
+
+	return container.NewBorder(nil, nil, container.NewPadded(av), nil,
+		container.NewVBox(name, sub))
+}
+
+// setStatusDot colours the status-bar dot: green ready, gold busy, red failed.
+func (a *App) setStatusDot(name fyne.ThemeColorName) {
+	if a.statusDot == nil {
+		return
+	}
+	a.statusDot.FillColor = theme.Color(name)
+	a.statusDot.Refresh()
 }
 
 func (a *App) setStatus(s string) { a.status.SetText(s) }
