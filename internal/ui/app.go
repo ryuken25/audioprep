@@ -181,7 +181,7 @@ func (a *App) bootstrapFFmpeg() {
 	fyne.Do(func() {
 		a.setStatus("FFmpeg not found.")
 		dialog.ShowConfirm("FFmpeg is required",
-			"audioprep needs FFmpeg (about 100 MB) to encode video.\n\nDownload it now into your user folder?\nIt is only downloaded once.",
+			"audioprep needs FFmpeg (about 170 MB) to encode video.\n\nDownload it now into your user folder?\nIt is only downloaded once.",
 			func(yes bool) {
 				if !yes {
 					a.setStatus("FFmpeg not found. Put ffmpeg.exe and ffprobe.exe next to audioprep.exe and restart.")

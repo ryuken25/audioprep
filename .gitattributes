@@ -1,0 +1,10 @@
+# Normalise line endings: LF in the repo and on checkout, everywhere.
+# gofmt and the Makefile both assume LF; CRLF checkouts on Windows would
+# make every file show as modified.
+* text=auto eol=lf
+
+# Binary files
+*.png binary
+*.ico binary
+*.syso binary
+*.wasm binary

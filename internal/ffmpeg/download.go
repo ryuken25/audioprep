@@ -30,7 +30,7 @@ type DownloadProgress struct {
 // the callback (which may be nil) and honours ctx for cancellation.
 //
 // The zip is streamed to a temp file next to destDir rather than held in
-// memory: it is ~100 MB and there is no reason to allocate that.
+// memory: it is ~170 MB and there is no reason to allocate that.
 func Download(ctx context.Context, destDir string, report func(DownloadProgress)) error {
 	if err := os.MkdirAll(destDir, 0o755); err != nil {
 		return fmt.Errorf("create %s: %w", destDir, err)
@@ -114,6 +114,9 @@ func fetch(ctx context.Context, url string, w io.Writer, report func(DownloadPro
 // of what folder they sit in. zip.OpenReader also validates the archive, which
 // doubles as our "is this really a zip" check.
 func extractBinaries(zipPath, destDir string) error {
+	if err := os.MkdirAll(destDir, 0o755); err != nil {
+		return fmt.Errorf("create %s: %w", destDir, err)
+	}
 	zr, err := zip.OpenReader(zipPath)
 	if err != nil {
 		return fmt.Errorf("downloaded file is not a valid zip: %w", err)
