@@ -29,16 +29,18 @@ func newTheme(dark bool) fyne.Theme {
 	return &forcedTheme{base: theme.DefaultTheme(), variant: v}
 }
 
-// accent is the one colour we override: a warm amber that reads well on both
-// variants and matches the web version.
-var accent = color.NRGBA{R: 0xf5, G: 0x9e, B: 0x0b, A: 0xff}
+// accent is the one colour we override: the gold from the owner's banner,
+// matching the web version (see design/brand.json).
+var accent = color.NRGBA{R: 0xd7, G: 0xc0, B: 0x93, A: 0xff}
 
 func (t *forcedTheme) Color(name fyne.ThemeColorName, _ fyne.ThemeVariant) color.Color {
 	switch name {
 	case theme.ColorNamePrimary:
 		return accent
 	case theme.ColorNameFocus:
-		return color.NRGBA{R: 0xf5, G: 0x9e, B: 0x0b, A: 0x66}
+		return color.NRGBA{R: 0xd7, G: 0xc0, B: 0x93, A: 0x66}
+	case theme.ColorNameForegroundOnPrimary:
+		return color.NRGBA{R: 0x1a, G: 0x14, B: 0x10, A: 0xff} // dark text on gold buttons
 	}
 	return t.base.Color(name, t.variant)
 }

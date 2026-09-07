@@ -1,8 +1,10 @@
-# audioprep
+# Kenshi AudioPrep
 
-Audio-first video encoder for X (Twitter) and TikTok. Drop a video, pick a
-preset, click Process, get an MP4 whose audio is as ready as it can be for
-the platform's re-encode.
+Audio-first video encoder for X (Twitter) and TikTok, by
+[kenshi2K](https://x.com/kenshi2k_). Drop a video, pick a preset, click
+Process, get an MP4 whose audio is as ready as it can be for the
+platform's re-encode. The repo, module and binary keep the short name
+`audioprep`.
 
 Comes as a Windows desktop app (Go + Fyne) and a browser version that runs
 entirely on your machine (ffmpeg.wasm). Same presets, same logic.
@@ -10,7 +12,7 @@ entirely on your machine (ffmpeg.wasm). Same presets, same logic.
 | | |
 |---|---|
 | **Desktop (Windows)** | [Download the latest release](https://github.com/ryuken25/audioprep/releases/latest) |
-| **Browser** | [ryuken25.github.io/audioprep](https://ryuken25.github.io/audioprep/) |
+| **Browser** | [kenshi-audioprep.vercel.app](https://kenshi-audioprep.vercel.app/) (mirror: [ryuken25.github.io/audioprep](https://ryuken25.github.io/audioprep/)) |
 
 _Screenshot: coming soon. Until then the [Using the desktop app](#using-the-desktop-app) section describes the window top to bottom._
 
@@ -86,8 +88,8 @@ The **Log** section shows every ffmpeg command and its output.
 
 ## Using the browser version
 
-Open [ryuken25.github.io/audioprep](https://ryuken25.github.io/audioprep/).
-Nothing is uploaded; ffmpeg runs as WebAssembly inside the tab. It is
+Open [kenshi-audioprep.vercel.app](https://kenshi-audioprep.vercel.app/)
+(or the GitHub Pages mirror). Nothing is uploaded; ffmpeg runs as WebAssembly inside the tab. It is
 slower than the desktop app (single-threaded wasm, expect roughly 1x to 3x
 realtime for 720p) and has a 2 GB memory ceiling, so very large 1080p files
 may fail. For those, use the desktop app. Details in
@@ -137,7 +139,9 @@ For the browser version: `cd web && npm install && npm run dev`.
   a short README, writes SHA256 sums, and attaches everything to a GitHub
   Release.
 - [`pages.yml`](.github/workflows/pages.yml) deploys `web/dist` to GitHub
-  Pages whenever `web/` changes on `main`.
+  Pages whenever `web/` changes on `main`. Vercel builds the same folder
+  on every push through its GitHub integration (project
+  `kenshi-audioprep`, root directory `web`, `web/vercel.json`).
 
 ## Go concepts used in this codebase
 
@@ -172,8 +176,9 @@ internal/preset/      the preset table
 internal/pipeline/    turn (input, preset, options) into ffmpeg jobs; run them
 internal/ui/          the Fyne window
 internal/config/      %APPDATA%\audioprep\config.json
-assets/               icon (embedded)
-tools/genicon/        draws the icon
+assets/               app icon (the owner's avatar; embedded), icon-waveform.png is the old one
+tools/genicon/        draws the old waveform icon
+design/               brief, persona, brand tokens and screenshots for a design pass
 web/                  the browser version (Vite + ffmpeg.wasm)
 ```
 

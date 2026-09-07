@@ -1,0 +1,31 @@
+{
+  "product": "Kenshi AudioPrep",
+  "owner": { "displayName": "kenshi2K", "handle": "@kenshi2k_", "x": "https://x.com/kenshi2k_", "discord": "kenshiwassleepy", "location": "Bali", "joinedX": "September 2024" },
+  "palette": {
+    "ink": "#0b0b0f",
+    "surface": "#141116",
+    "surface2": "#1e1a20",
+    "border": "#2b2329",
+    "mauve": "#68484c",
+    "mauveDeep": "#5b3c3e",
+    "lavender": "#9a97a2",
+    "lavenderLight": "#dbe0ef",
+    "gold": "#d7c093",
+    "goldMuted": "#ac997c",
+    "seaGrey": "#5b6165",
+    "text": "#ece8ee",
+    "textMuted": "#a39aa6",
+    "ok": "#8fbf9f",
+    "warn": "#d7c093",
+    "error": "#c76b6b"
+  },
+  "paletteSources": {
+    "ink, surface, border, mauve": "avatar.jpg dominant colours (#010201 #141116 #2b2329 #68484c #5b3c3e)",
+    "gold, goldMuted, seaGrey": "banner.jpg dominant colours (#d7c093 #ac997c #5b6165)",
+    "lavender, lavenderLight": "fanart-birthday-chibi.jpg (#9a97a2 #dbe0ef)"
+  },
+  "previousAccent": "#f59e0b (amber, v0.1 to v0.2; replace with mauve and gold)",
+  "type": { "display": "rounded geometric sans (e.g. Outfit, Sora, Plus Jakarta Sans)", "body": "system-ui / Inter", "mono": "JetBrains Mono / ui-monospace for the log and file paths" },
+  "mood": ["late-night bedroom studio", "sleepy, calm, unhurried", "VRChat and utaite culture", "black clothing, soft mauve light, one warm gold highlight", "chalkboard handwriting as an accent, not a font"],
+  "avoid": ["neon cyber", "corporate SaaS blue", "amber/orange as the main accent", "loud gradients", "stock waveform clip art"]
+}

@@ -275,3 +275,42 @@ them.
 **Deployed to GitHub Pages under `/audioprep/`** because it needs no extra
 credentials or accounts beyond the repo itself. Vite `base` is set
 accordingly.
+
+**Also on Vercel as kenshi-audioprep.vercel.app.** The owner asked for
+that domain. The Vercel project is git-linked with root directory `web`,
+so every push to `main` builds it; `web/vercel.json` pins the commands.
+Vite's `base` is picked at build time: `/` when `VERCEL=1`, `/audioprep/`
+otherwise, `VITE_BASE` to override. Vercel serves the wasm core with
+Brotli, which the tolerant downloader above already handles.
+
+## Name, icon, palette (v0.3)
+
+**Product name is Kenshi AudioPrep; the repo, Go module and binary stay
+`audioprep`.** Renaming the module would touch every import and the
+release links already out there, for no user-visible gain. The window
+title, the web title and the resource block carry the real name.
+
+**The app icon is the owner's avatar** (`assets/icon.png`, a rounded
+square with a thin mauve border, made from `design/assets/avatar.jpg`).
+The old waveform icon is kept as `assets/icon-waveform.png`. The web uses
+the same picture as a round header mark linking to the X profile, and as
+favicon and apple-touch-icon.
+
+**Palette comes from the persona images, not from a template.** Dark:
+near-black and dusty mauve from the avatar, gold from the Bali sunset
+banner as the only accent. Light: lavender-white surfaces with deep mauve
+as the accent (gold has no contrast on white). Every token lists its
+source image in `design/brand.json`. The previous amber over blue-grey
+produced the muddy olive selected state the owner disliked.
+
+**Custom is a full-width strip, the four stock presets are a row.** Five
+equal cards left one orphaned. Custom is also the odd one out in
+behaviour (it is where you land after editing anything), so giving it a
+different shape is honest, not just tidy.
+
+**Disabled primary button is grey, not dimmed gold.** Opacity on a gold
+button over a dark card read as a broken brown slab.
+
+**`design/` is a hand-off folder, not app code.** Brief, persona, tokens,
+assets and before/after screenshots for a designer or Claude Design. The
+one rule in the brief that matters for engineering: element ids stay.

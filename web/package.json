@@ -1,9 +1,9 @@
 {
   "name": "audioprep-web",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
-  "description": "Kenshi X Convert - audio-first video encoder for X / TikTok that runs entirely in the browser via ffmpeg.wasm",
+  "description": "Kenshi AudioPrep - audio-first video encoder for X / TikTok that runs entirely in the browser via ffmpeg.wasm",
   "scripts": {
     "dev": "node scripts/copy-core.mjs && vite",
     "build": "node scripts/copy-core.mjs && vite build",

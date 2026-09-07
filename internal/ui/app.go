@@ -78,7 +78,7 @@ func New(fyneApp fyne.App, version string) *App {
 	dark := cfg.Theme != "light"
 	fyneApp.Settings().SetTheme(newTheme(dark))
 
-	a.win = fyneApp.NewWindow("audioprep")
+	a.win = fyneApp.NewWindow("Kenshi AudioPrep")
 	a.win.Resize(fyne.NewSize(760, 820))
 	a.win.CenterOnScreen()
 	a.buildUI()
@@ -130,7 +130,7 @@ func (a *App) buildUI() {
 	versionLbl := widget.NewLabel("v" + a.version)
 	statusBar := container.NewBorder(widget.NewSeparator(), nil, nil, container.NewHBox(versionLbl, a.themeBtn), a.status)
 
-	title := widget.NewRichTextFromMarkdown("## audioprep\nAudio-first video encoder for X and TikTok. Loudness-normalised high-bitrate AAC, cheap H.264, ready to upload.")
+	title := widget.NewRichTextFromMarkdown("## Kenshi AudioPrep\nAudio-first video encoder for X and TikTok. Loudness-normalised high-bitrate AAC, cheap H.264, ready to upload.")
 
 	body := container.NewVBox(
 		title,

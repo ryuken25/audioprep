@@ -1,10 +1,10 @@
-# Kenshi X Convert (web)
+# Kenshi AudioPrep (web)
 
 Browser version of the `audioprep` encoder. Drop a video, pick a preset, click Process, download an MP4 that gives X (Twitter) or TikTok the cleanest possible input: loudness-normalized, true-peak-safe 48 kHz AAC at 256 kb/s, plus a simple, well-behaved H.264 stream.
 
 Everything runs inside the page with [ffmpeg.wasm](https://ffmpegwasm.netlify.app/). There is no server and nothing is uploaded. X will still re-encode whatever you post. This tool maximizes the quality of the input to that re-encode, it does not bypass it.
 
-Live: https://ryuken25.github.io/audioprep/
+Live: https://kenshi-audioprep.vercel.app/ (mirror: https://ryuken25.github.io/audioprep/)
 Desktop app (faster, no memory cap): https://github.com/ryuken25/audioprep/releases/latest
 
 ## Run locally
