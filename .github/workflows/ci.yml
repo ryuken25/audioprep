@@ -22,13 +22,15 @@ jobs:
 
       # Fyne compiles against X11/GL headers even when no window is opened,
       # so `go vet ./...` and `go test ./...` need them to build the ui
-      # package. ffmpeg lets the pipeline integration tests run for real
-      # instead of being skipped.
+      # package. Fyne 2.8's GLFW also builds its Wayland backend by default,
+      # hence libwayland-dev + wayland-protocols. ffmpeg lets the pipeline
+      # integration tests run for real instead of being skipped.
       - name: Install build deps
         run: |
           sudo apt-get update -q
           sudo apt-get install -y --no-install-recommends \
-            gcc libgl1-mesa-dev xorg-dev libxkbcommon-dev ffmpeg
+            gcc libgl1-mesa-dev xorg-dev libxkbcommon-dev \
+            libwayland-dev wayland-protocols ffmpeg
           ffmpeg -version | head -1
 
       - run: go vet ./...
