@@ -3,6 +3,7 @@ package ffmpeg
 import (
 	"archive/zip"
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"io"
@@ -66,8 +67,7 @@ func fetch(ctx context.Context, url string, w io.Writer, report func(DownloadPro
 	}
 	req.Header.Set("User-Agent", "audioprep/1.0 (+https://github.com/ryuken25/audioprep)")
 
-	client := &http.Client{Timeout: 0} // no overall timeout; ctx handles cancel
-	resp, err := client.Do(req)
+	resp, err := newDownloadClient().Do(req)
 	if err != nil {
 		return fmt.Errorf("download ffmpeg: %w", err)
 	}
@@ -108,6 +108,31 @@ func fetch(ctx context.Context, url string, w io.Writer, report func(DownloadPro
 		report(DownloadProgress{Done: done, Total: total, Stage: "downloading"})
 	}
 	return nil
+}
+
+// newDownloadClient returns an HTTP client with HTTP/2 switched off.
+//
+// Go's HTTP/2 client advertises a small flow-control window, and against
+// GitHub's release CDN that throttled this 170 MB download to ~0.3 MB/s on a
+// connection that does 6 MB/s over HTTP/1.1 (measured; see DECISIONS.md).
+// Setting TLSNextProto to an empty map is the documented way to opt out of
+// h2 while keeping everything else (proxy from environment, timeouts) from
+// the default transport. No overall client timeout: ctx handles cancel.
+func newDownloadClient() *http.Client {
+	// A fresh Transport, not a Clone() of the default one: Clone() forces
+	// the default transport's h2 setup first, and the copied TLS config then
+	// still advertises "h2" via ALPN. The server picks h2, we speak HTTP/1.1,
+	// and the connection dies with EOF. Owning the tls.Config avoids that.
+	tr := &http.Transport{
+		Proxy:                 http.ProxyFromEnvironment,
+		ForceAttemptHTTP2:     false,
+		TLSNextProto:          map[string]func(string, *tls.Conn) http.RoundTripper{},
+		TLSClientConfig:       &tls.Config{MinVersion: tls.VersionTLS12, NextProtos: []string{"http/1.1"}},
+		TLSHandshakeTimeout:   20 * time.Second,
+		ResponseHeaderTimeout: 60 * time.Second,
+		IdleConnTimeout:       30 * time.Second,
+	}
+	return &http.Client{Transport: tr}
 }
 
 // extractBinaries pulls ffmpeg.exe and ffprobe.exe out of the zip regardless

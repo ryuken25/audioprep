@@ -33,6 +33,15 @@ searches: next to the exe, then `%APPDATA%\audioprep\bin`, then PATH.
 First-run download comes from BtbN's `latest` release, which is a rolling
 tag with a stable asset filename, so the URL never goes stale.
 
+**The download forces HTTP/1.1.** The first real download test stalled past
+ten minutes: Go's HTTP/2 client was pulling at 0.2 to 0.3 MB/s from GitHub's
+release CDN while curl on the same machine got 6.6 MB/s. Re-running with
+`GODEBUG=http2client=0` brought Go to 6.0 MB/s and a 30 s download. The
+cause is Go's small HTTP/2 flow-control window on a high-latency link (a
+known issue). `newDownloadClient` in `download.go` clones the default
+transport and empties `TLSNextProto`, which is the documented way to turn
+h2 off for one client without touching anything else.
+
 **Only ffmpeg.exe and ffprobe.exe are extracted** from the ~170 MB zip; the
 rest (docs, ffplay, headers) is discarded. Extraction writes to `.part` and
 renames, so a crash mid-extract can never leave a half-written binary that
