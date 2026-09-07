@@ -27,7 +27,7 @@ just a Preset the user edited, relabelled by `preset.AsCustom`.
 
 ## FFmpeg
 
-**Not bundled.** ~100 MB is too much for a Go binary and it would need
+**Not bundled.** 170 MB is too much for a Go binary and it would need
 rebuilding on every ffmpeg release. Instead `internal/ffmpeg/locate.go`
 searches: next to the exe, then `%APPDATA%\audioprep\bin`, then PATH.
 First-run download comes from BtbN's `latest` release, which is a rolling
@@ -38,9 +38,12 @@ ten minutes: Go's HTTP/2 client was pulling at 0.2 to 0.3 MB/s from GitHub's
 release CDN while curl on the same machine got 6.6 MB/s. Re-running with
 `GODEBUG=http2client=0` brought Go to 6.0 MB/s and a 30 s download. The
 cause is Go's small HTTP/2 flow-control window on a high-latency link (a
-known issue). `newDownloadClient` in `download.go` clones the default
-transport and empties `TLSNextProto`, which is the documented way to turn
-h2 off for one client without touching anything else.
+known issue). `newDownloadClient` in `download.go` builds its own
+`http.Transport` with a `tls.Config` that only offers `http/1.1` and an
+empty `TLSNextProto`. Cloning the default transport was tried first and
+failed with EOF: `Clone()` runs the default h2 setup, so the copied TLS
+config still advertised h2 via ALPN, the server picked it, and the client
+then spoke HTTP/1.1 on an h2 connection.
 
 **Only ffmpeg.exe and ffprobe.exe are extracted** from the ~170 MB zip; the
 rest (docs, ffplay, headers) is discarded. Extraction writes to `.part` and
@@ -171,7 +174,7 @@ small rectangles; not worth it.
 
 **Drag-and-drop is window-level** (`Window.SetOnDropped`) because Fyne does
 not route drops to individual widgets. The drop zone is a visual target
-only; dropping anywhere in the window works, which is friendlier anyway.
+only; dropping anywhere in the window works.
 
 **Log lines are coalesced.** ffmpeg emits hundreds of stderr lines per
 second. `LogPanel.Append` buffers and schedules a single `fyne.Do` flush;
@@ -203,13 +206,13 @@ manifest declares the app DPI-aware and GUI-subsystem.
 
 **`-H windowsgui -s -w`** hides the console and strips symbols. Child ffmpeg
 processes get `HideWindow: true` so they do not flash a console either
-(`internal/ffmpeg/hide_windows.go`).
+(`internal/ffmpeg/proc_windows.go`).
 
 **Local build used a portable mingw-w64 (WinLibs GCC 14.2)** because the dev
 box had no C compiler and no admin rights for a package manager. CI uses
 `msys2/setup-msys2` for the same toolchain. Both are documented in README.
 
-**Cancel kills the process tree, not just the child.** `exec.CommandContext`
+**Cancel kills the whole process tree.** `exec.CommandContext`
 kills only the process it started. The first release build failed its
 cancel test on the GitHub runner: ffmpeg there comes from Chocolatey, whose
 `ffmpeg.exe` is a shim, so the shim died and the real encoder ran on for
@@ -242,7 +245,7 @@ format, quirks included.
 SharedArrayBuffer, which needs COOP/COEP headers, which GitHub Pages cannot
 set. Single-threaded works everywhere at the cost of speed. If the site
 ever moves to Cloudflare Pages (headers supported), switching to `core-mt`
-is a one-line change in `web/src/ffmpeg.js`.
+is a one-line change in `web/src/ffmpeg-runner.js`.
 
 **Core files are self-hosted, copied at build time**, not loaded from a CDN.
 Some CDNs serve `.wasm` with the wrong MIME type, and a CDN outage would

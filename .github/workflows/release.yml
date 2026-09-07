@@ -80,7 +80,7 @@ jobs:
       - name: Package zip
         run: |
           cat > dist/README.txt <<'EOF'
-          audioprep — audio-first video encoder for X and TikTok
+          audioprep: audio-first video encoder for X and TikTok
           =====================================================
 
           1. Run audioprep-windows-amd64.exe

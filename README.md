@@ -17,18 +17,17 @@ _Screenshot: coming soon. Until then the [Using the desktop app](#using-the-desk
 ## Why this exists
 
 X re-encodes every video you upload. So does TikTok. You cannot turn that
-off, and their audio encoder is not gentle: quiet uploads come out quieter,
-loud uploads get squashed, and anything above 16 kHz mostly disappears.
-What you *can* do is hand them the cleanest input possible so their encoder
-has nothing to fix. audioprep does exactly that: it measures your audio's
-loudness, brings it to -14 LUFS with a true peak no higher than -1 dBTP
-(the level every major platform normalises toward), resamples to 48 kHz
-stereo, encodes it as 256 kb/s AAC, and pairs it with a small, simple
-H.264 video so the platform's transcoder has an easy job and spends its
-budget where you want it.
+off. Quiet uploads come out quieter, loud ones get squashed, and most of
+what sits above 16 kHz is gone after their pass.
 
-It is built for vocal covers shot on a phone, 15 seconds to a couple of
-minutes, but it works on anything with an audio track.
+What you can control is the input. audioprep measures the loudness of your
+audio and brings it to -14 LUFS with a true peak at or under -1 dBTP, which
+is the level X, TikTok and YouTube all normalise toward. It resamples to
+48 kHz stereo and encodes AAC at 256 kb/s. The video gets a small, plain
+H.264 stream so their transcoder has little to do on that side.
+
+It was built for vocal covers shot on a phone, 15 seconds to a couple of
+minutes. Anything with an audio track works.
 
 ## What the X preset actually does
 
@@ -54,9 +53,9 @@ Other presets: **X (balanced)** (1080p, 6000 kb/s, no low-pass),
 `.m4a`), and **Custom** (every knob exposed). All presets are one table in
 [`internal/preset/preset.go`](internal/preset/preset.go).
 
-**Honest note:** X will still re-encode your file. audioprep maximises the
-quality of what goes *in*; it does not bypass their compression, and it
-cannot make their encoder use a higher bitrate than it wants to.
+X still re-encodes your file after this. audioprep improves what goes in.
+It does not skip their compression and cannot raise the bitrate their
+encoder picks.
 
 ## Using the desktop app
 
@@ -80,8 +79,7 @@ cannot make their encoder use a higher bitrate than it wants to.
 Output goes next to the input as `<name>_<preset>.mp4` (or to a folder you
 choose). Existing files are never overwritten; `-1`, `-2` is appended.
 
-The **Log** section shows every ffmpeg command and its output, which is
-the fastest way to learn what the tool is doing.
+The **Log** section shows every ffmpeg command and its output.
 
 ## Using the browser version
 
@@ -153,7 +151,7 @@ idea first shows up, with a comment explaining it:
 | Channels, non-blocking send | progress channel in [`runner.go`](internal/ffmpeg/runner.go) and [`run.go`](internal/pipeline/run.go) |
 | `context.Context` and cancellation | [`runner.go`](internal/ffmpeg/runner.go) (`exec.CommandContext`), `process()` in [`app.go`](internal/ui/app.go) |
 | Interfaces (satisfied implicitly) | `forcedTheme` in [`theme.go`](internal/ui/theme.go); `DropZone` implementing `fyne.Tappable` in [`dropzone.go`](internal/ui/dropzone.go) |
-| Build constraints (`//go:build`) | [`hide_windows.go`](internal/ffmpeg/hide_windows.go) / [`hide_other.go`](internal/ffmpeg/hide_other.go) |
+| Build constraints (`//go:build`) | [`proc_windows.go`](internal/ffmpeg/proc_windows.go) / [`proc_other.go`](internal/ffmpeg/proc_other.go) |
 | `//go:embed` | [`assets/assets.go`](assets/assets.go) |
 | JSON decoding with struct tags | [`probe.go`](internal/ffmpeg/probe.go), [`config.go`](internal/config/config.go) |
 | Injecting a function for testability | `OutputPath(..., exists func(string) bool)` in [`naming.go`](internal/pipeline/naming.go) |

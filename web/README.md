@@ -48,21 +48,9 @@ All video presets target -14 LUFS integrated, -1 dBTP true peak, LRA 11. A stati
 
 The single-threaded core is used on purpose. The multi-threaded one needs `SharedArrayBuffer`, which requires COOP/COEP headers that GitHub Pages cannot send.
 
-A GitHub Actions workflow for Pages should do roughly this:
-
-```yaml
-- uses: actions/setup-node@v4
-  with: { node-version: 22, cache: npm, cache-dependency-path: web/package-lock.json }
-- run: npm ci
-  working-directory: web
-- run: npm test
-  working-directory: web
-- run: npm run build
-  working-directory: web
-- uses: actions/upload-pages-artifact@v3
-  with: { path: web/dist }
-- uses: actions/deploy-pages@v4
-```
+Deployment is `.github/workflows/pages.yml` at the repo root: `npm ci`,
+`npm test`, `npm run build`, then `upload-pages-artifact` and
+`deploy-pages`. It runs on every push to `main` that touches `web/`.
 
 ## Limitations
 
