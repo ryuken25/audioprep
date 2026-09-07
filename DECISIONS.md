@@ -209,6 +209,18 @@ processes get `HideWindow: true` so they do not flash a console either
 box had no C compiler and no admin rights for a package manager. CI uses
 `msys2/setup-msys2` for the same toolchain. Both are documented in README.
 
+**Cancel kills the process tree, not just the child.** `exec.CommandContext`
+kills only the process it started. The first release build failed its
+cancel test on the GitHub runner: ffmpeg there comes from Chocolatey, whose
+`ffmpeg.exe` is a shim, so the shim died and the real encoder ran on for
+another 20 s holding our pipes. Scoop shims and `.cmd` wrappers behave the
+same way. `cmd.Cancel` now calls `killTree` (`taskkill /T /F` on Windows,
+then `Process.Kill` as a fallback) and `cmd.WaitDelay` bounds `Wait`. A
+Windows-only integration test drives the pipeline through an `ffmpeg.cmd`
+wrapper to keep this honest. The `v0.1.0` tag was moved to the fixed
+commit before any release existed, so no published release ever pointed at
+the broken behaviour.
+
 ## Testing
 
 **Integration tests self-skip when ffmpeg is missing** and under `-short`,
