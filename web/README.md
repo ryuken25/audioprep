@@ -27,15 +27,15 @@ npm run preview   # serve the build locally
 
 1. Probe the file with `ffmpeg -i` and parse duration, streams, and rotation metadata.
 2. Pass 1: `loudnorm` in measurement mode on the audio (optionally after a 16 kHz lowpass).
-3. Pass 2: one ffmpeg run that applies linear `loudnorm` with the measured values, resamples to 48 kHz, encodes AAC 256k, and encodes video with libx264 (`-preset veryfast`, CRF 23, bitrate cap per preset, `+faststart`). Video is scaled down (never up) to the preset box, keeping aspect ratio and honoring portrait rotation, and capped at 30 fps.
+3. Pass 2: one ffmpeg run that applies linear `loudnorm` with the measured values, resamples to 48 kHz, encodes AAC 256k, and encodes video with libx264 (`-preset veryfast`, CRF 23, bitrate cap per preset, `+faststart`). Video is scaled down (never up) to the preset box, keeping aspect ratio and honoring portrait rotation, and capped at the preset's frame rate (24 fps for X audio-first, 30 for the rest).
 4. Post-check: re-probe the output and measure it with `ebur128` so you see the actual integrated loudness and true peak next to the input values.
 
 Presets:
 
 | Preset | Box | Video cap | Audio | Notes |
 |---|---|---|---|---|
-| X (audio-first), default | 1280x720 | 2.5 Mb/s | 256k AAC, lowpass 16 kHz | warns above 140 s |
-| X (balanced) | 1920x1080 | 6 Mb/s | 256k AAC | |
+| X (audio-first), default | 1280x720, 24 fps | 1.8 Mb/s, CRF 26 | 320k AAC, lowpass 16 kHz | warns above 140 s |
+| X (balanced) | 1920x1080, 30 fps | 6 Mb/s | 256k AAC | |
 | TikTok / Shorts | 1080x1920 | 8 Mb/s | 256k AAC | |
 | Audio only | none | none | 256k AAC in .m4a | picked automatically for audio files |
 | Custom | yours | yours | yours | any edit in Advanced switches to this |
