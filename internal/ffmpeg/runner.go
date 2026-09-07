@@ -78,6 +78,13 @@ func (r *Runner) Run(ctx context.Context, args []string, total time.Duration, pr
 	// safe.
 	cmd := exec.CommandContext(ctx, r.FFmpeg, full...)
 	hideConsole(cmd)
+	// Cancel is what CommandContext calls when ctx is done. The default is
+	// Process.Kill, which only reaches the direct child; killTree also takes
+	// out any ffmpeg started by a wrapper script or shim. WaitDelay stops
+	// Wait from hanging forever if something still holds our pipes after
+	// the process is gone.
+	cmd.Cancel = func() error { return killTree(cmd.Process) }
+	cmd.WaitDelay = 5 * time.Second
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
