@@ -50,10 +50,19 @@ rest (docs, ffplay, headers) is discarded. Extraction writes to `.part` and
 renames, so a crash mid-extract can never leave a half-written binary that
 `Locate` would pick up.
 
-**Native `aac` encoder at 256k, `libfdk_aac` if present.** BtbN's GPL build
-does not ship libfdk_aac (it is non-free), so the native encoder is what
-almost everyone gets. At 256k stereo the native encoder is transparent for
-this use case. Detection is a real `ffmpeg -encoders` parse, not a guess.
+**Native `aac` encoder, `libfdk_aac` if present.** BtbN's GPL build does
+not ship libfdk_aac (it is non-free), so the native encoder is what almost
+everyone gets. At 256k and above the native encoder is transparent for this
+use case. Detection is a real `ffmpeg -encoders` parse, not a guess.
+
+**X (audio-first) in v0.2.0: 24 fps, CRF 26, 1800k cap, 320k AAC.** The
+owner asked for the video to be cheaper still and the audio bitrate higher.
+320k is where the AAC-LC ladder tops out; above it the native encoder
+mostly pads. 24 fps drops a 30 fps phone clip to 24 with the `fps` filter
+(a 24 fps input is left alone). One honest note: X gives audio a fixed
+budget on its side regardless of the video, so the cheaper video mainly
+buys a smaller upload, not better audio out of X. The balanced, TikTok and
+audio-only presets keep 256k and 30 fps.
 
 **Arguments are a `[]string`, never a shell string.** `exec.Command` passes
 them straight to CreateProcess. Filenames with spaces, quotes or unicode

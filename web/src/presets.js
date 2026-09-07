@@ -10,10 +10,11 @@ export const PRESETS = {
   'x-audio': {
     id: 'x-audio',
     name: 'X (audio-first)',
-    description: '720p, 2.5 Mb/s cap, 256k AAC, 16 kHz lowpass. Best for vocal covers.',
+    // Video is deliberately cheap: 24 fps, CRF 26, 1.8 Mb/s cap. Audio gets 320k.
+    description: '720p at 24 fps, 1.8 Mb/s cap, 320k AAC, 16 kHz lowpass. Best for vocal covers.',
     audioOnly: false,
-    maxW: 1280, maxH: 720, fpsCap: 30, crf: 23, maxrate: 2500, bufsize: 5000,
-    audioBitrate: 256, ...LOUDNESS, lowpass: true, lowpassHz: 16000,
+    maxW: 1280, maxH: 720, fpsCap: 24, crf: 26, maxrate: 1800, bufsize: 3600,
+    audioBitrate: 320, ...LOUDNESS, lowpass: true, lowpassHz: 16000,
     warnDuration: 140,
   },
   'x-balanced': {
@@ -48,9 +49,9 @@ export const PRESETS = {
     name: 'Custom',
     description: 'Every knob exposed. Starts from whatever you last selected.',
     audioOnly: false,
-    // Custom keeps the current values; these are only the initial defaults.
-    maxW: 1280, maxH: 720, fpsCap: 30, crf: 23, maxrate: 2500, bufsize: 5000,
-    audioBitrate: 256, ...LOUDNESS, lowpass: true, lowpassHz: 16000,
+    // Custom keeps the current values; these are only the initial defaults (same as x-audio).
+    maxW: 1280, maxH: 720, fpsCap: 24, crf: 26, maxrate: 1800, bufsize: 3600,
+    audioBitrate: 320, ...LOUDNESS, lowpass: true, lowpassHz: 16000,
     warnDuration: null,
   },
 };

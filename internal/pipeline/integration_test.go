@@ -97,8 +97,8 @@ func TestIntegration_XPreset(t *testing.T) {
 	if out.Video.Codec != "h264" || out.Video.Width != 1280 || out.Video.Height != 720 {
 		t.Errorf("video = %s %dx%d, want h264 1280x720", out.Video.Codec, out.Video.Width, out.Video.Height)
 	}
-	if out.Video.FPS > 30.5 {
-		t.Errorf("fps = %.2f, want <= 30", out.Video.FPS)
+	if out.Video.FPS > 24.5 || out.Video.FPS < 23.5 {
+		t.Errorf("fps = %.2f, want 24 (X audio-first cap)", out.Video.FPS)
 	}
 	if out.Video.PixFmt != "yuv420p" {
 		t.Errorf("pix_fmt = %s", out.Video.PixFmt)
@@ -106,10 +106,10 @@ func TestIntegration_XPreset(t *testing.T) {
 	if out.Audio.Codec != "aac" || out.Audio.SampleRate != 48000 || out.Audio.Channels != 2 {
 		t.Errorf("audio = %s %d Hz ch%d, want aac 48000 ch2", out.Audio.Codec, out.Audio.SampleRate, out.Audio.Channels)
 	}
-	// The native aac encoder lands a little under the requested 256k on a
-	// pure sine; anything above 128k proves the bitrate flag took effect.
-	if out.Audio.BitRate < 128_000 {
-		t.Errorf("audio bitrate = %d, want >= 128k", out.Audio.BitRate)
+	// The native aac encoder lands under the requested 320k on a pure sine
+	// (nothing to spend bits on); anything above 200k proves the flag took.
+	if out.Audio.BitRate < 200_000 {
+		t.Errorf("audio bitrate = %d, want >= 200k", out.Audio.BitRate)
 	}
 	if math.Abs(out.Duration-probe.Duration) > 0.3 {
 		t.Errorf("duration drifted: in %.2f out %.2f", probe.Duration, out.Duration)

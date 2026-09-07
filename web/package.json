@@ -1,7 +1,7 @@
 {
   "name": "audioprep-web",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "description": "Kenshi X Convert - audio-first video encoder for X / TikTok that runs entirely in the browser via ffmpeg.wasm",
   "scripts": {

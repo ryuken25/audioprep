@@ -55,11 +55,11 @@ func TestEncodeArgs_XAudioFirst_Golden(t *testing.T) {
 	got := join(EncodeArgs(req, measured, "", "out.mp4"))
 	want := strings.Join([]string{
 		"-i in.mp4 -map 0:v:0 -map 0:a:0",
-		"-c:v libx264 -profile:v high -level 4.1 -pix_fmt yuv420p -crf 23 -maxrate 2500k -bufsize 5000k",
-		// 29.97 fps is under the 30 cap, so no fps filter; portrait phone clip scales to 720x1280.
-		"-vf scale=720:1280",
+		"-c:v libx264 -profile:v high -level 4.1 -pix_fmt yuv420p -crf 26 -maxrate 1800k -bufsize 3600k",
+		// 29.97 fps is over the 24 cap, so fps=24 comes first; portrait phone clip scales to 720x1280.
+		"-vf fps=24,scale=720:1280",
 		"-af lowpass=f=16000,loudnorm=I=-14:TP=-1:LRA=11:measured_I=-21.81:measured_TP=-17.69:measured_LRA=0.1:measured_thresh=-31.81:offset=0.01:linear=true:print_format=summary,aresample=48000",
-		"-c:a aac -b:a 256k -ar 48000 -ac 2",
+		"-c:a aac -b:a 320k -ar 48000 -ac 2",
 		"-movflags +faststart out.mp4",
 	}, " ")
 	if got != want {
@@ -72,18 +72,32 @@ func TestEncodeArgs_FPSCapApplied(t *testing.T) {
 	pr.Video.FPS = 60
 	req := Request{InputPath: "in.mp4", Probe: pr, Preset: mustPreset(t, preset.IDXAudioFirst)}
 	got := join(EncodeArgs(req, measured, "", "out.mp4"))
-	if !strings.Contains(got, "-vf fps=30,scale=720:1280") {
-		t.Errorf("60 fps input should get fps=30 before scale: %s", got)
+	if !strings.Contains(got, "-vf fps=24,scale=720:1280") {
+		t.Errorf("60 fps input should get fps=24 before scale: %s", got)
 	}
 }
 
 func TestEncodeArgs_NoScaleWhenFits(t *testing.T) {
 	pr := phoneProbe()
 	pr.Video.Width, pr.Video.Height, pr.Video.Rotation = 1280, 720, 0
+	pr.Video.FPS = 24 // at the cap: no fps filter either
 	req := Request{InputPath: "in.mp4", Probe: pr, Preset: mustPreset(t, preset.IDXAudioFirst)}
 	got := join(EncodeArgs(req, measured, "", "out.mp4"))
 	if strings.Contains(got, "-vf") {
 		t.Errorf("720p input must not get a -vf: %s", got)
+	}
+}
+
+func TestEncodeArgs_XAudioFirst_24fpsInputKeepsRate(t *testing.T) {
+	pr := phoneProbe()
+	pr.Video.FPS = 24
+	req := Request{InputPath: "in.mp4", Probe: pr, Preset: mustPreset(t, preset.IDXAudioFirst)}
+	got := join(EncodeArgs(req, measured, "", "out.mp4"))
+	if strings.Contains(got, "fps=") {
+		t.Errorf("24 fps input must not be resampled under a 24 cap: %s", got)
+	}
+	if !strings.Contains(got, "-b:a 320k") || !strings.Contains(got, "-crf 26 -maxrate 1800k -bufsize 3600k") {
+		t.Errorf("X audio-first v0.2 knobs missing: %s", got)
 	}
 }
 
@@ -133,11 +147,11 @@ func TestEncodeArgs_StaticVideo_Golden(t *testing.T) {
 	got := join(EncodeArgs(req, measured, "frame.png", "out.mp4"))
 	want := strings.Join([]string{
 		"-framerate 1 -loop 1 -i frame.png -i in.mp4 -map 0:v:0 -map 1:a:0 -shortest -t 42.5",
-		"-c:v libx264 -profile:v high -level 4.1 -pix_fmt yuv420p -crf 23 -maxrate 2500k -bufsize 5000k",
+		"-c:v libx264 -profile:v high -level 4.1 -pix_fmt yuv420p -crf 26 -maxrate 1800k -bufsize 3600k",
 		"-tune stillimage -r 1",
 		"-vf scale=720:1280",
 		"-af lowpass=f=16000,loudnorm=I=-14:TP=-1:LRA=11:measured_I=-21.81:measured_TP=-17.69:measured_LRA=0.1:measured_thresh=-31.81:offset=0.01:linear=true:print_format=summary,aresample=48000",
-		"-c:a aac -b:a 256k -ar 48000 -ac 2",
+		"-c:a aac -b:a 320k -ar 48000 -ac 2",
 		"-movflags +faststart out.mp4",
 	}, " ")
 	if got != want {
@@ -162,7 +176,7 @@ func TestStillFrameArgs(t *testing.T) {
 func TestEncodeArgs_LibfdkAAC(t *testing.T) {
 	req := Request{InputPath: "in.mp4", Probe: phoneProbe(), Preset: mustPreset(t, preset.IDXAudioFirst), AudioEncoder: "libfdk_aac"}
 	got := join(EncodeArgs(req, measured, "", "out.mp4"))
-	if !strings.Contains(got, "-c:a libfdk_aac -b:a 256k -ar 48000 -ac 2 -profile:a aac_low") {
+	if !strings.Contains(got, "-c:a libfdk_aac -b:a 320k -ar 48000 -ac 2 -profile:a aac_low") {
 		t.Errorf("libfdk args: %s", got)
 	}
 }

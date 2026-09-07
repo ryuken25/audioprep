@@ -130,7 +130,7 @@ func (a *App) buildUI() {
 	versionLbl := widget.NewLabel("v" + a.version)
 	statusBar := container.NewBorder(widget.NewSeparator(), nil, nil, container.NewHBox(versionLbl, a.themeBtn), a.status)
 
-	title := widget.NewRichTextFromMarkdown("## audioprep\nAudio-first video encoder for X and TikTok. Loudness-normalised 256k AAC, cheap H.264, ready to upload.")
+	title := widget.NewRichTextFromMarkdown("## audioprep\nAudio-first video encoder for X and TikTok. Loudness-normalised high-bitrate AAC, cheap H.264, ready to upload.")
 
 	body := container.NewVBox(
 		title,

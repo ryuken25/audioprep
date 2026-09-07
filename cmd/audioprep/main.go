@@ -1,5 +1,5 @@
 // audioprep is a small desktop tool that prepares a video for upload to X or
-// TikTok with the audio treated as the priority: loudness-normalised 256k AAC
+// TikTok with the audio treated as the priority: loudness-normalised 320k AAC
 // at 48 kHz, and a deliberately cheap H.264 video so the platform's own
 // transcoder has an easy job.
 //

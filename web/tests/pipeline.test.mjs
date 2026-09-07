@@ -35,28 +35,30 @@ test('x-audio preset filters', () => {
 
 test('video filter: scale + fps cap only when needed', () => {
   const s = settingsFromPreset('x-audio');
-  assert.equal(buildVideoFilter(probe1080p, s).vf, 'scale=1280:720,fps=30');
-  const fits = { ...probe1080p, video: { ...probe1080p.video, width: 1280, height: 720, fps: 30 } };
+  assert.equal(buildVideoFilter(probe1080p, s).vf, 'scale=1280:720,fps=24');
+  const fits = { ...probe1080p, video: { ...probe1080p.video, width: 1280, height: 720, fps: 24 } };
   assert.equal(buildVideoFilter(fits, s).vf, null);
-  const portrait = { ...probe1080p, video: { ...probe1080p.video, rotation: 90, fps: 30 } };
+  const portrait = { ...probe1080p, video: { ...probe1080p.video, rotation: 90, fps: 24 } };
   assert.equal(buildVideoFilter(portrait, s).vf, 'scale=720:1280');
+  const thirty = { ...fits, video: { ...fits.video, fps: 30 } };
+  assert.equal(buildVideoFilter(thirty, s).vf, 'fps=24', '30 fps input is capped to 24 even when no scaling is needed');
 });
 
 test('encode args for a normal video', () => {
-  const s = { ...settingsFromPreset('x-audio'), bufsize: 5000 };
+  const s = { ...settingsFromPreset('x-audio'), bufsize: 3600 };
   const args = buildEncodeArgs({ input: 'in.mp4', output: 'out.mp4', probe: probe1080p, settings: s, measured });
   assert.deepEqual(args, [
     '-hide_banner', '-nostdin', '-i', 'in.mp4',
     '-map', '0:v:0', '-map', '0:a:0',
-    '-vf', 'scale=1280:720,fps=30',
+    '-vf', 'scale=1280:720,fps=24',
     '-c:v', 'libx264', '-preset', 'veryfast', '-profile:v', 'high', '-level', '4.1', '-pix_fmt', 'yuv420p',
-    '-crf', '23', '-maxrate', '2500k', '-bufsize', '5000k',
+    '-crf', '26', '-maxrate', '1800k', '-bufsize', '3600k',
     '-af', buildAF2(s, measured),
-    '-c:a', 'aac', '-b:a', '256k', '-ar', '48000', '-ac', '2',
+    '-c:a', 'aac', '-b:a', '320k', '-ar', '48000', '-ac', '2',
     '-movflags', '+faststart', 'out.mp4',
   ]);
   assert.ok(argsToShell(args).startsWith("ffmpeg -hide_banner -nostdin -i in.mp4"));
-  assert.ok(argsToShell(args).includes("'scale=1280:720,fps=30'") === false, 'plain filter strings need no quotes');
+  assert.ok(argsToShell(args).includes("'scale=1280:720,fps=24'") === false, 'plain filter strings need no quotes');
 });
 
 test('encode args for static video mode', () => {

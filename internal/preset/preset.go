@@ -57,6 +57,7 @@ const (
 // normaliser has nothing to do.
 const (
 	defaultAudioKbps = 256
+	xAudioKbps       = 320 // X (audio-first) and Custom; see DECISIONS.md
 	defaultI         = -14.0
 	defaultTP        = -1.0
 	defaultLRA       = 11.0
@@ -66,16 +67,20 @@ const (
 // All is the preset table, in display order. The first entry is the default.
 var All = []Preset{
 	{
+		// Video is deliberately cheap here: 24 fps, CRF 26, 1.8 Mb/s cap.
+		// Audio gets 320k, the top of the AAC-LC ladder. X re-encodes both
+		// anyway; this keeps the upload small and the audio input as clean
+		// as the encoder can make it.
 		ID:               IDXAudioFirst,
 		Name:             "X (audio-first)",
-		Description:      "720p, tight video budget, 256k AAC at -14 LUFS. Best for vocal covers.",
+		Description:      "720p at 24 fps with a small video budget, 320k AAC at -14 LUFS. Best for vocal covers.",
 		MaxWidth:         1280,
 		MaxHeight:        720,
-		FPSCap:           30,
-		CRF:              23,
-		MaxRate:          "2500k",
-		BufSize:          "5000k",
-		AudioBitrateKbps: defaultAudioKbps,
+		FPSCap:           24,
+		CRF:              26,
+		MaxRate:          "1800k",
+		BufSize:          "3600k",
+		AudioBitrateKbps: xAudioKbps,
 		LoudnessI:        defaultI,
 		TruePeak:         defaultTP,
 		LRA:              defaultLRA,
@@ -142,11 +147,11 @@ var All = []Preset{
 		Description:      "Start from the X preset and change anything in Advanced.",
 		MaxWidth:         1280,
 		MaxHeight:        720,
-		FPSCap:           30,
-		CRF:              23,
-		MaxRate:          "2500k",
-		BufSize:          "5000k",
-		AudioBitrateKbps: defaultAudioKbps,
+		FPSCap:           24,
+		CRF:              26,
+		MaxRate:          "1800k",
+		BufSize:          "3600k",
+		AudioBitrateKbps: xAudioKbps,
 		LoudnessI:        defaultI,
 		TruePeak:         defaultTP,
 		LRA:              defaultLRA,

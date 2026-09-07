@@ -11,6 +11,8 @@
 #   make web         build the browser version into web/dist
 
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
+# Plain numeric version for the Windows resource block (git describe output is not valid there).
+WINRES_VERSION ?= 0.2.0
 LDFLAGS  = -H windowsgui -s -w -X main.version=$(VERSION)
 BIN      = dist/audioprep-windows-amd64.exe
 
@@ -40,7 +42,7 @@ winres:
 		--icon assets/icon.png --manifest gui \
 		--product-name audioprep \
 		--file-description "Audio-first video encoder for X and TikTok" \
-		--product-version $(VERSION) --file-version 0.1.0.0 \
+		--product-version $(WINRES_VERSION) --file-version $(WINRES_VERSION).0 \
 		--copyright "MIT License, ryuken25" \
 		--original-filename audioprep.exe \
 		--out cmd/audioprep/rsrc

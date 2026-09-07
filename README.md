@@ -23,7 +23,7 @@ what sits above 16 kHz is gone after their pass.
 What you can control is the input. audioprep measures the loudness of your
 audio and brings it to -14 LUFS with a true peak at or under -1 dBTP, which
 is the level X, TikTok and YouTube all normalise toward. It resamples to
-48 kHz stereo and encodes AAC at 256 kb/s. The video gets a small, plain
+48 kHz stereo and encodes AAC at 320 kb/s. The video gets a small, plain
 H.264 stream so their transcoder has little to do on that side.
 
 It was built for vocal covers shot on a phone, 15 seconds to a couple of
@@ -39,16 +39,19 @@ The default preset, **X (audio-first)**, makes these choices:
 - **Low-pass at 16 kHz** before normalising. X's audio bitrate throws that
   band away anyway; removing it first lets the AAC encoder spend its bits
   on what survives. (Off in the other presets.)
-- **48 kHz stereo, AAC-LC at 256 kb/s.** Mono input is upmixed.
-- **Video: H.264 High 4.1, CRF 23, capped at 2500 kb/s**, at most 720p in
-  whichever orientation you shot, at most 30 fps, never upscaled. Cheap on
-  purpose.
+- **48 kHz stereo, AAC-LC at 320 kb/s.** The top of the AAC-LC ladder.
+  Mono input is upmixed.
+- **Video: H.264 High 4.1, CRF 26, capped at 1800 kb/s**, at most 720p in
+  whichever orientation you shot, at most 24 fps, never upscaled. Cheap on
+  purpose: X gives audio a fixed budget no matter what the video costs, so
+  the video only needs to look acceptable, and a small file uploads
+  faster.
 - **`+faststart`** so the file streams immediately.
 - **Optional "static video"**: replace the whole picture with one frame at
   1 fps. Nearly all of the container is then audio. Good for pure audio
   posts.
 
-Other presets: **X (balanced)** (1080p, 6000 kb/s, no low-pass),
+Other presets: **X (balanced)** (1080p, 30 fps, 6000 kb/s, 256k AAC, no low-pass),
 **TikTok / Shorts** (vertical 1080x1920, 8000 kb/s), **Audio only** (an
 `.m4a`), and **Custom** (every knob exposed). All presets are one table in
 [`internal/preset/preset.go`](internal/preset/preset.go).
