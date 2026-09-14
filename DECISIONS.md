@@ -209,7 +209,11 @@ but the JSON is human-editable and the code is 60 lines.
 ## Windows packaging
 
 **Icon and manifest are embedded via committed `.syso` files** generated
-once with `go-winres` (`make winres`). Plain `go build` picks them up
+with `go-winres` (`make winres`). The release workflow regenerates them from
+the tag before building, because doing it by hand meant v0.5.0 shipped an exe
+whose file properties still read "0.4.0" (the in-app version was right; it
+comes from `-ldflags -X`). The committed files are what a plain `go build`
+picks up locally. Plain `go build` picks them up
 automatically, so neither CI nor a contributor needs the `fyne` CLI. The
 manifest declares the app DPI-aware and GUI-subsystem.
 

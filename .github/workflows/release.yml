@@ -65,6 +65,17 @@ jobs:
             echo "version=$(git describe --tags --always)" >> "$GITHUB_OUTPUT"
           fi
 
+      # The icon and version block live in committed .syso files. Regenerate
+      # them from the tag so the exe's file properties cannot drift from the
+      # release (v0.5.0 shipped reading "0.4.0" because this was manual).
+      - name: Stamp the Windows resource block
+        run: |
+          V="${{ steps.ver.outputs.version }}"
+          # go-winres wants a plain numeric version; fall back for a non-tag run.
+          if [[ ! "$V" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then V="0.0.0"; fi
+          go run github.com/tc-hib/go-winres@v0.3.3 simply             --icon assets/icon.png --manifest gui             --product-name "Kenshi AudioPrep"             --file-description "Kenshi AudioPrep: audio-first video encoder for X and TikTok"             --product-version "$V" --file-version "$V.0"             --copyright "MIT License, ryuken25"             --original-filename audioprep.exe             --out cmd/audioprep/rsrc
+          ls -la cmd/audioprep/*.syso
+
       - name: Build
         env:
           CGO_ENABLED: "1"
