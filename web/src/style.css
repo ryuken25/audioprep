@@ -885,6 +885,23 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 @keyframes pulse { 50% { opacity: 0.35; } }
 .credit { color: var(--text-faint); font-size: 11.5px; }
 
+/* Small explanatory line under a group of Advanced inputs. */
+.adv-note {
+  grid-column: 1 / -1;
+  margin: 2px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+/* The artist's handle is a real link, so give it enough contrast to read as one
+   even sitting on the picture rather than on glass. */
+.credit a { color: var(--text-muted); text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; }
+.credit a:hover { color: var(--accent-text); }
+.credit a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 3px; }
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 640px) {

@@ -168,6 +168,14 @@
                 <label><span class="adv-label" data-i18n="fpsCap">FPS cap</span><input type="number" data-key="fpsCap" step="1" min="1" max="120"><span class="unit mono">fps</span></label>
                 <label><span class="adv-label" data-i18n="boxW">Box width</span><input type="number" data-key="maxW" step="2" min="2" max="4096"><span class="unit mono">px</span></label>
                 <label><span class="adv-label" data-i18n="boxH">Box height</span><input type="number" data-key="maxH" step="2" min="2" max="4096"><span class="unit mono">px</span></label>
+                <p class="adv-note"><span id="source-res" class="mono"></span><button id="match-source" class="btn btn-tiny" type="button" hidden data-i18n="matchSource">Match source</button></p>
+              </div>
+              <div class="adv-group">
+                <h3 data-i18n="speedGroup">Speed</h3>
+                <label class="check"><input type="radio" name="threads" value="auto" checked><span data-i18n="threadsAuto">Auto</span></label>
+                <label class="check"><input type="radio" name="threads" value="multi"><span data-i18n="threadsMulti">Multi-thread</span></label>
+                <label class="check"><input type="radio" name="threads" value="single"><span data-i18n="threadsSingle">Single thread</span></label>
+                <p class="adv-note"><span id="threads-note" class="mono"></span></p>
               </div>
               <div class="adv-group" data-video>
                 <h3 data-i18n="staticGroup">Static video</h3>
@@ -233,9 +241,12 @@
       <footer class="footer">
         <p id="core-status" class="core-status"><span class="dot" data-state="loading"></span><span id="core-status-text">FFmpeg core: loading…</span></p>
         <p class="muted small" data-i18n="honest">X will still re-encode your video. This just hands it the cleanest possible input; it does not skip the compression.</p>
-        <p id="art-credit" class="credit mono">Art by @nkcllg · background from kenshi2K's VRChat captures</p>
+        <p id="art-credit" class="credit mono">Art by <a href="https://x.com/ssuzudayo" target="_blank" rel="noopener">@ssuzudayo</a> · background from kenshi2K's VRChat captures</p>
       </footer>
     </div>
+    <!-- Adds COOP/COEP on hosts that cannot set headers, so the multi-threaded
+         core can use SharedArrayBuffer. No-op where the headers already exist. -->
+    <script src="%BASE_URL%coi-serviceworker.js"></script>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

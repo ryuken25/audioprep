@@ -56,7 +56,11 @@ row: "Captured By kenshi2K", a date, a world name ("Japan Shrine ... by
 RootGentle"). The cover videos are essentially a still image plus audio,
 which is what the app's static-video mode produces.
 
-**Fan art** (`assets/photos/fanart-birthday-chibi.jpg`): a chibi drawing of
+**Fan art** (`assets/photos/fanart-birthday-chibi.jpg`), **by @ssuzudayo**, a
+birthday present ("A-A-A-ARIGATOU GOZAIMUCHHH @ssuzudayo, look at this bday
+present"). This is the image used as the site's default background, so
+@ssuzudayo is who the footer credits. Do not confuse it with @nkcllg, who
+illustrated the Ame Sansan cover with @Zeikou_Ch and did not draw this. It is a chibi drawing of
 Kenshi (black hair, blue eyes, black jacket over a light blue tee) as a
 keychain, with a "Today's plan: buy cake, party, karaoke night" notebook on
 a lavender-pink desk. Palette: #dbe0ef, #9a97a2, #9c8591, #574a57.

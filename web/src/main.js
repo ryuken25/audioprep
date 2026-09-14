@@ -4,6 +4,7 @@ import { FFmpegRunner } from './ffmpeg-runner.js';
 import { PRESETS, PRESET_ORDER, DEFAULT_PRESET, TUNABLE_KEYS, settingsFromPreset, matchesPreset } from './presets.js';
 import { parseProbe } from './probe.js';
 import { buildProbeArgs, buildVideoFilter, describeWarning, isPictureMode, runPipeline, STAGES } from './pipeline.js';
+import { describePlan, planThreads, THREAD_MODES } from './threads.js';
 import { coverBox, fitInsideBox } from './scale.js';
 import { argsToShell, baseName, extOf, formatBytes, formatDuration, formatNumber } from './format.js';
 import { LANGS, getLang, setLang, nextLang, t } from './i18n.js';
@@ -36,6 +37,9 @@ const els = {
   coverBtn: $('cover-btn'),
   coverClear: $('cover-clear'),
   coverLine: $('cover-line'),
+  sourceRes: $('source-res'),
+  matchSource: $('match-source'),
+  threadsNote: $('threads-note'),
   presetList: $('preset-list'),
   presetPlan: $('preset-plan'),
   advanced: $('advanced'),
@@ -65,6 +69,8 @@ const els = {
 };
 
 const state = {
+  threadMode: 'auto',
+  threadPlan: null,
   file: null,
   inputName: null,
   inputWritten: false,
@@ -216,6 +222,13 @@ function paintLogCount() {
 
 /* ---------- FFmpeg ---------- */
 
+// Restore the saved thread mode before the runner is built, so the very first
+// core load already honours it. (Reading it later only affected later reloads.)
+try {
+  const saved = localStorage.getItem('kxc.threads');
+  if (THREAD_MODES.includes(saved)) state.threadMode = saved;
+} catch { /* private mode */ }
+
 const runner = new FFmpegRunner({
   onLog: (message) => log.push(message),
   onCommand: (args) => log.push(`$ ${argsToShell(args)}`, 'cmd'),
@@ -226,7 +239,9 @@ const runner = new FFmpegRunner({
       const total = ev.total ? ` / ${formatBytes(ev.total)}` : '';
       setCoreStatus('loading', () => `${t().coreLoading} ${got}${total}`);
     } else if (ev.phase === 'ready') {
-      setCoreStatus('ready', () => `${t().coreReady} (${formatBytes(ev.bytes)}, ${t().coreReadyNote})`);
+      const note = ev.plan ? describePlan(ev.plan) : t().coreReadyNote;
+      setCoreStatus('ready', () => `${t().coreReady} (${formatBytes(ev.bytes)}, ${note})`);
+      renderThreadsNote(ev.plan);
       // After a cancel the "Cancelled." line is more useful than "Ready to process."
       if (!state.running && !state.cancelled) setStatus(() => (state.probe ? t().status.ready : t().status.idle));
     } else if (ev.phase === 'error') {
@@ -373,6 +388,33 @@ function fillAdvanced() {
     input.disabled = off || state.running;
   }
   els.advanced.querySelectorAll('[data-video]').forEach((g) => g.classList.toggle('is-off', audioOnly));
+  renderSourceRes();
+}
+
+/**
+ * Show the loaded file's own resolution under the box fields, with a button to
+ * copy it in. The preset box is a ceiling, not a target, so it does not change
+ * on its own; this makes the source obvious and one click to adopt.
+ */
+function renderSourceRes() {
+  const v = state.probe?.video;
+  if (!v || state.settings.audioOnly) {
+    els.sourceRes.textContent = '';
+    els.matchSource.hidden = true;
+    return;
+  }
+  const w = v.width;
+  const h = v.height;
+  els.sourceRes.textContent = `source ${w}x${h}`;
+  const already = Number(state.settings.maxW) === w && Number(state.settings.maxH) === h;
+  els.matchSource.hidden = already || state.running;
+  els.matchSource.textContent = t().matchSource;
+}
+
+function renderThreadsNote(plan) {
+  const p = plan || state.threadPlan || planThreads(state.threadMode);
+  state.threadPlan = p;
+  els.threadsNote.textContent = describePlan(p);
 }
 
 function onAdvancedInput(ev) {
@@ -993,12 +1035,53 @@ restoreSettings();
 setStatus(() => t().status.loading);
 setCoreStatus('loading', () => t().coreLoading);
 renderI18n();
+// Exposed on purpose: lets a support session inspect the loaded core and run
+// a raw ffmpeg command from the console without rebuilding.
+window.__kxc = { runner, state };
+
 els.advanced.addEventListener('input', onAdvancedInput);
+
+// --- Speed: thread mode ---------------------------------------------------
+// Switching reloads the ffmpeg core, so it is refused mid-run.
+for (const radio of document.querySelectorAll('input[name="threads"]')) {
+  radio.checked = radio.value === state.threadMode;
+  radio.addEventListener('change', async () => {
+    if (!radio.checked || state.running) return;
+    state.threadMode = radio.value;
+    try { localStorage.setItem('kxc.threads', radio.value); } catch { /* private mode */ }
+    renderThreadsNote(planThreads(state.threadMode));
+    setCoreStatus('loading', () => t().coreLoading);
+    try {
+      const plan = await runner.setThreadMode(radio.value);
+      renderThreadsNote(plan);
+    } catch (err) {
+      log.push(`thread mode: ${err?.message || err}`);
+    }
+  });
+}
+renderThreadsNote(planThreads(state.threadMode));
+
+// --- Match source resolution ----------------------------------------------
+els.matchSource.addEventListener('click', () => {
+  const v = state.probe?.video;
+  if (!v || state.running) return;
+  state.settings = { ...state.settings, maxW: v.width, maxH: v.height };
+  // Typing these by hand switches to Custom, so clicking the button must too.
+  if (state.settings.preset !== 'custom' && !matchesPreset(state.settings, state.settings.preset)) {
+    state.settings.preset = 'custom';
+    checkPresetRadio('custom');
+  }
+  fillAdvanced();
+  persistSettings();
+  renderCover();
+  renderPlan();
+});
 updateProcessButton();
 
 if (typeof WebAssembly === 'undefined') {
   setCoreStatus('error', () => t().coreErr);
   setStatus(() => 'WebAssembly is required. Use a current Chrome, Edge, Firefox or Safari.', 'error');
 } else {
+  runner.threadMode = state.threadMode;
   runner.load().catch((err) => console.error('ffmpeg load failed', err));
 }

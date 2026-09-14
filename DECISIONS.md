@@ -286,6 +286,74 @@ The language pill cycles and persists as `kxc.lang`, defaulting from
 table; the numbers stayed in `presets.js`, because they are a product
 decision and not copy.
 
+## Multi-threaded encoding (v0.5)
+
+The owner's 63 s 1440x1280 clip was encoding at 0.12x realtime, about eight
+minutes. Two things were wrong: the app only ever loaded the single-threaded
+ffmpeg core, and nothing told libx264 it could use more than one thread.
+
+**Both cores now ship** (`@ffmpeg/core` and `@ffmpeg/core-mt`, copied side by
+side into `public/ffmpeg/`), and the runner picks one at load time. The MT core
+needs SharedArrayBuffer, which needs the page cross-origin isolated:
+`vercel.json` sets COOP/COEP directly, `public/coi-serviceworker.js` adds the
+same headers on a host that cannot (GitHub Pages), and `vite.config.js` sets
+them for dev and preview so local runs behave like production. When none of
+that works the app quietly stays single-threaded.
+
+**The blob URL was the real bug.** Passing the MT core as a `blob:` URL loads
+fine and then dies on the first exec with "Cannot read properties of undefined
+(reading 'startsWith')". Emscripten resolves `ffmpeg-core.worker.js` relative
+to the core's own script URL, and a blob URL has no directory. The MT core is
+therefore loaded from its real path; only the wasm still streams through our
+own fetcher, for the progress bar. The single-threaded core keeps the blob,
+because that is what dodges the broken gzip handling in `@ffmpeg/util`.
+
+**Threads are capped at 4, and that number is measured, not chosen.** On a
+16-core machine, a 3 s 720p60 encode:
+
+| `-threads` | result |
+|---|---|
+| 1 (single core) | 4849 ms |
+| 2 | 2691 ms |
+| 4 | 1909 ms |
+| 6 | never returns |
+
+At 6 the run produces no frames, no error and no progress; ffmpeg needs workers
+of its own for demux and filtering, and the encoder asking for that many leaves
+the pthread pool empty so everything waits forever. This cost an afternoon to
+find, because the failure looks exactly like "wasm is slow". `MAX_THREADS` in
+`web/src/threads.js` carries the table and a test asserts the value, so nobody
+raises it without re-measuring.
+
+Real result on the owner's own footage: a 5 s cut of the 1440x1280 60 fps clip
+now finishes in 10 s wall clock at -14.2 LUFS, against roughly 40 s before.
+
+**Auto / Multi / Single is a radio group in Advanced**, persisted as
+`kxc.threads`, and the footer says which core is live and why
+("multi-threaded wasm, 4 of 16 cores", or "single-threaded wasm (not
+cross-origin isolated)"). Switching reloads the core, so it is refused
+mid-encode. The saved mode is read *before* the runner is constructed; reading
+it afterwards meant the first load always used auto and the preference only
+took effect on the second switch.
+
+## Resolution: the box is a ceiling, the source is shown
+
+The preset box is a cap, not a target, which is right but was invisible: the
+owner loaded a 1440x1280 file, saw "1080x1920" sitting in the Advanced fields
+and reasonably read it as wrong. The fields still hold the preset's cap, and
+under them the app now prints `source 1440x1280` with a **Match source** button
+that copies it in. Clicking it switches to Custom, exactly as typing the
+numbers by hand already did. Auto-filling the box from the source instead was
+tempting but would have made every loaded file look like a Custom preset.
+
+## Credit
+
+The background fan art is by **@ssuzudayo**, a birthday present to kenshi2K.
+An earlier version credited @nkcllg, who illustrated the Ame Sansan cover with
+@Zeikou_Ch and did not draw this. Misattributing someone's art is worse than
+having no credit, so `design/persona.md` now names both and says which is
+which, and the footer links the handle.
+
 ## Audio in, MP4 out (cover mode)
 
 **An audio file no longer forces the M4A preset.** It keeps the chosen video

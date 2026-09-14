@@ -119,6 +119,14 @@ realtime for 720p) and has a 2 GB memory ceiling, so very large 1080p files
 may fail. For those, use the desktop app. Details in
 [`web/README.md`](web/README.md).
 
+**Speed.** The browser version uses a multi-threaded FFmpeg build where the
+browser allows it, which is roughly 2.5x faster than the single-threaded one.
+The footer says which is running. If it reports "not cross-origin isolated",
+the page is being served without the COOP/COEP headers that SharedArrayBuffer
+needs; the Vercel deployment sets them. **Advanced → Speed** lets you force
+Multi or Single if you want to compare. Threads are capped at four because the
+WebAssembly build deadlocks above that; see DECISIONS.md for the measurements.
+
 ## Building locally on Windows
 
 You need Go 1.22+ and a C compiler, because Fyne uses cgo for the window.

@@ -62,9 +62,14 @@ export function buildVideoFilter(probe, s) {
   return { vf: parts.length ? parts.join(',') : null, dims };
 }
 
-export function buildVideoCodecArgs(s, { still = false } = {}) {
+export function buildVideoCodecArgs(s, { still = false, threads = 1 } = {}) {
   const bufsize = s.bufsize || Number(s.maxrate) * 2;
   const args = ['-c:v', 'libx264', '-preset', 'veryfast'];
+  // libx264 defaults to one thread under wasm. Handing it the planned count is
+  // what actually makes the multi-threaded core faster; without this the MT
+  // core loads and then encodes at single-thread speed.
+  const n = Math.max(1, Math.floor(Number(threads) || 1));
+  if (n > 1) args.push('-threads', String(n));
   if (still) args.push('-tune', 'stillimage');
   args.push(
     '-profile:v', 'high', '-level', '4.1', '-pix_fmt', 'yuv420p',
@@ -111,7 +116,7 @@ export function isPictureMode(probe, s) {
  *   frame?:string, cover?:string|null}} o `cover` is the picture already written to the
  *   ffmpeg FS; null means a generated black frame.
  */
-export function buildEncodeArgs({ input, output, probe, settings: s, measured = null, frame = 'frame.png', cover = null, coverW = 0, coverH = 0 }) {
+export function buildEncodeArgs({ input, output, probe, settings: s, measured = null, frame = 'frame.png', cover = null, coverW = 0, coverH = 0, threads = 1 }) {
   const af = buildAF2(s, measured);
   const audio = buildAudioCodecArgs(s);
   const tail = ['-af', af, ...audio, '-movflags', '+faststart', output];
@@ -134,7 +139,7 @@ export function buildEncodeArgs({ input, output, probe, settings: s, measured = 
       '-i', input,
       '-map', '0:v', '-map', '1:a', '-shortest', ...tArgs,
       '-vf', buildCoverFilter(box),
-      ...buildVideoCodecArgs(s, { still: true }),
+      ...buildVideoCodecArgs(s, { still: true, threads }),
       ...tail,
     ];
   }
@@ -150,7 +155,7 @@ export function buildEncodeArgs({ input, output, probe, settings: s, measured = 
       '-framerate', '1', '-loop', '1', '-i', frame,
       '-i', input,
       '-map', '0:v', '-map', '1:a', '-shortest', ...tArgs,
-      ...vfArgs, ...buildVideoCodecArgs(s, { still: true }),
+      ...vfArgs, ...buildVideoCodecArgs(s, { still: true, threads }),
       ...tail,
     ];
   }
@@ -158,7 +163,7 @@ export function buildEncodeArgs({ input, output, probe, settings: s, measured = 
   return [
     '-hide_banner', '-nostdin', '-i', input,
     '-map', '0:v:0', '-map', '0:a:0',
-    ...vfArgs, ...buildVideoCodecArgs(s),
+    ...vfArgs, ...buildVideoCodecArgs(s, { threads }),
     ...tail,
   ];
 }
@@ -224,6 +229,9 @@ const clamp01 = (x) => (Number.isFinite(x) ? Math.min(1, Math.max(0, x)) : 0);
  * `runner.exec(args, {duration, onProgress})` must resolve to `{code, log, ms}`.
  */
 export async function runPipeline({ runner, inputName, probe, settings, cover = null, onStage = () => {}, onProgress = () => {} }) {
+  // Threads come from the runner's current plan, so the args always match the
+  // core that is actually loaded.
+  const threads = runner?.plan?.threads || 1;
   // An input without a video stream is only forced to audio-only when the preset has no
   // video box; otherwise it becomes an MP4 with a still picture.
   const picture = isPictureMode(probe, settings);
@@ -270,7 +278,7 @@ export async function runPipeline({ runner, inputName, probe, settings, cover = 
   const encodeArgs = buildEncodeArgs({
     input: inputName, output: outputName, probe, settings: s, measured,
     frame: frame || 'frame.png', cover: coverName,
-    coverW: cover?.width || 0, coverH: cover?.height || 0,
+    coverW: cover?.width || 0, coverH: cover?.height || 0, threads,
   });
   const r2 = await runner.exec(encodeArgs, { duration, onProgress: progress });
   timings.encode = r2.ms;
